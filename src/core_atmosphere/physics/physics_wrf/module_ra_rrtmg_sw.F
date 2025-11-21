@@ -10596,102 +10596,102 @@ CONTAINS
 
                !--- 在CALL TO THE RRTMG SHORT WAVE RADIATION MODEL之前添加：
 
-               if (first_call) then
-                  ! 打印CSV表头 - 先写时间和位置信息
-                  write(csv_line, '(A)') 'xtime,gmt,julday,xlat,xlong,i,j,ncol,nlay,icld,'// &
-                       'tsfc,asdir,asdif,aldir,aldif,coszen,scon,adjes,dyofyr,inflgsw,iceflgsw,liqflgsw,'
+               ! if (first_call) then
+               !    ! 打印CSV表头 - 先写时间和位置信息
+               !    write(csv_line, '(A)') 'xtime,gmt,julday,xlat,xlong,i,j,ncol,nlay,icld,'// &
+               !         'tsfc,asdir,asdif,aldir,aldif,coszen,scon,adjes,dyofyr,inflgsw,iceflgsw,liqflgsw,'
                   
-                  ! 添加垂直分层变量的表头
-                  do csv_k = kts, kte+1
-                     write(temp_str, '(A,I0,A)') 'play_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
-                  do csv_k = kts, kte+2
-                     write(temp_str, '(A,I0,A)') 'plev_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
-                  do csv_k = kts, kte+1
-                     write(temp_str, '(A,I0,A)') 'tlay_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
-                  do csv_k = kts, kte+2
-                     write(temp_str, '(A,I0,A)') 'tlev_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
-                  do csv_k = kts, kte+1
-                     write(temp_str, '(A,I0,A)') 'h2ovmr_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
-                  do csv_k = kts, kte+1
-                     write(temp_str, '(A,I0,A)') 'o3vmr_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
-                  do csv_k = kts, kte+1
-                     write(temp_str, '(A,I0,A)') 'co2vmr_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
-                  do csv_k = kts, kte+1
-                     write(temp_str, '(A,I0,A)') 'ch4vmr_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
-                  do csv_k = kts, kte+1
-                     write(temp_str, '(A,I0,A)') 'n2ovmr_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
-                  do csv_k = kts, kte+1
-                     write(temp_str, '(A,I0,A)') 'o2vmr_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
-                  do csv_k = kts, kte+1
-                     write(temp_str, '(A,I0,A)') 'cldfrac_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
-                  do csv_k = kts, kte+1
-                     write(temp_str, '(A,I0,A)') 'clwpth_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
-                  do csv_k = kts, kte+1
-                     write(temp_str, '(A,I0,A)') 'ciwpth_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
-                  do csv_k = kts, kte+1
-                     write(temp_str, '(A,I0,A)') 'cswpth_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
-                  do csv_k = kts, kte+1
-                     write(temp_str, '(A,I0,A)') 'rel_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
-                  do csv_k = kts, kte+1
-                     write(temp_str, '(A,I0,A)') 'rei_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
-                  do csv_k = kts, kte+1
-                     write(temp_str, '(A,I0,A)') 'res_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
+               !    ! 添加垂直分层变量的表头
+               !    do csv_k = kts, kte+1
+               !       write(temp_str, '(A,I0,A)') 'play_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
+               !    do csv_k = kts, kte+2
+               !       write(temp_str, '(A,I0,A)') 'plev_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
+               !    do csv_k = kts, kte+1
+               !       write(temp_str, '(A,I0,A)') 'tlay_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
+               !    do csv_k = kts, kte+2
+               !       write(temp_str, '(A,I0,A)') 'tlev_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
+               !    do csv_k = kts, kte+1
+               !       write(temp_str, '(A,I0,A)') 'h2ovmr_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
+               !    do csv_k = kts, kte+1
+               !       write(temp_str, '(A,I0,A)') 'o3vmr_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
+               !    do csv_k = kts, kte+1
+               !       write(temp_str, '(A,I0,A)') 'co2vmr_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
+               !    do csv_k = kts, kte+1
+               !       write(temp_str, '(A,I0,A)') 'ch4vmr_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
+               !    do csv_k = kts, kte+1
+               !       write(temp_str, '(A,I0,A)') 'n2ovmr_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
+               !    do csv_k = kts, kte+1
+               !       write(temp_str, '(A,I0,A)') 'o2vmr_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
+               !    do csv_k = kts, kte+1
+               !       write(temp_str, '(A,I0,A)') 'cldfrac_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
+               !    do csv_k = kts, kte+1
+               !       write(temp_str, '(A,I0,A)') 'clwpth_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
+               !    do csv_k = kts, kte+1
+               !       write(temp_str, '(A,I0,A)') 'ciwpth_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
+               !    do csv_k = kts, kte+1
+               !       write(temp_str, '(A,I0,A)') 'cswpth_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
+               !    do csv_k = kts, kte+1
+               !       write(temp_str, '(A,I0,A)') 'rel_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
+               !    do csv_k = kts, kte+1
+               !       write(temp_str, '(A,I0,A)') 'rei_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
+               !    do csv_k = kts, kte+1
+               !       write(temp_str, '(A,I0,A)') 'res_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
                   
-                  ! 添加输出变量表头
-                  do csv_k = kts, kte+2
-                     write(temp_str, '(A,I0,A)') 'swuflx_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
-                  do csv_k = kts, kte+2
-                     write(temp_str, '(A,I0,A)') 'swdflx_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
-                  do csv_k = kts, kte+1
-                     write(temp_str, '(A,I0,A)') 'swhr_', csv_k, ','
-                     csv_line = trim(csv_line) // trim(temp_str)
-                  end do
+               !    ! 添加输出变量表头
+               !    do csv_k = kts, kte+2
+               !       write(temp_str, '(A,I0,A)') 'swuflx_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
+               !    do csv_k = kts, kte+2
+               !       write(temp_str, '(A,I0,A)') 'swdflx_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
+               !    do csv_k = kts, kte+1
+               !       write(temp_str, '(A,I0,A)') 'swhr_', csv_k, ','
+               !       csv_line = trim(csv_line) // trim(temp_str)
+               !    end do
                   
-                  ! 去掉最后一个逗号并打印表头
-                  csv_line = trim(csv_line)
-                  csv_line(len_trim(csv_line):len_trim(csv_line)) = ' '
-                  print '(A)', trim(csv_line)
+               !    ! 去掉最后一个逗号并打印表头
+               !    csv_line = trim(csv_line)
+               !    csv_line(len_trim(csv_line):len_trim(csv_line)) = ' '
+               !    print '(A)', trim(csv_line)
                   
-                  first_call = .false.
-               end if
+               !    first_call = .false.
+               ! end if
 
 
                !--- CALL TO THE RRTMG SHORT WAVE RADIATION MODEL:
@@ -10708,105 +10708,105 @@ CONTAINS
                   swdkdif   , swdkdirc  , calc_clean_atm_diag)
 
 
-               !--- 在CALL之后打印数据：
+               ! !--- 在CALL之后打印数据：
           
-               ! 打印数据行 - 确保包含所有关键输入变量
-               write(csv_line, '(E15.7,A,E15.7,A,I0,A,E15.7,A,E15.7,A,I0,A,I0,A,I0,A,I0,A,I0,A,'// &
-               'E15.7,A,E15.7,A,E15.7,A,E15.7,A,E15.7,A,E15.7,A,E15.7,A,E15.7,A,I0,A,I0,A,I0,A,I0,A)') &
-               xtime, ',', gmt, ',', julday, ',', xlat(i,j), ',', xlong(i,j), ',', &
-               i, ',', j, ',', ncol, ',', nlay, ',', icld, ',', &
-               tsfc(1), ',', asdir(1), ',', asdif(1), ',', aldir(1), ',', aldif(1), ',', &
-               coszen(1), ',', scon, ',', adjes, ',', dyofyr, ',', &
-               inflgsw, ',', iceflgsw, ',', liqflgsw, ','
+               ! ! 打印数据行 - 确保包含所有关键输入变量
+               ! write(csv_line, '(E15.7,A,E15.7,A,I0,A,E15.7,A,E15.7,A,I0,A,I0,A,I0,A,I0,A,I0,A,'// &
+               ! 'E15.7,A,E15.7,A,E15.7,A,E15.7,A,E15.7,A,E15.7,A,E15.7,A,E15.7,A,I0,A,I0,A,I0,A,I0,A)') &
+               ! xtime, ',', gmt, ',', julday, ',', xlat(i,j), ',', xlong(i,j), ',', &
+               ! i, ',', j, ',', ncol, ',', nlay, ',', icld, ',', &
+               ! tsfc(1), ',', asdir(1), ',', asdif(1), ',', aldir(1), ',', aldif(1), ',', &
+               ! coszen(1), ',', scon, ',', adjes, ',', dyofyr, ',', &
+               ! inflgsw, ',', iceflgsw, ',', liqflgsw, ','
      
-               ! 写入垂直分层的输入变量
-               do csv_k = kts, kte+1
-                  write(temp_str, '(E15.7,A)') play(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
-               do csv_k = kts, kte+2
-                  write(temp_str, '(E15.7,A)') plev(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
-               do csv_k = kts, kte+1
-                  write(temp_str, '(E15.7,A)') tlay(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
-               do csv_k = kts, kte+2
-                  write(temp_str, '(E15.7,A)') tlev(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
-               do csv_k = kts, kte+1
-                  write(temp_str, '(E15.7,A)') h2ovmr(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
-               do csv_k = kts, kte+1
-                  write(temp_str, '(E15.7,A)') o3vmr(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
-               do csv_k = kts, kte+1
-                  write(temp_str, '(E15.7,A)') co2vmr(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
-               do csv_k = kts, kte+1
-                  write(temp_str, '(E15.7,A)') ch4vmr(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
-               do csv_k = kts, kte+1
-                  write(temp_str, '(E15.7,A)') n2ovmr(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
-               do csv_k = kts, kte+1
-                  write(temp_str, '(E15.7,A)') o2vmr(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
-               do csv_k = kts, kte+1
-                  write(temp_str, '(E15.7,A)') cldfrac(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
-               do csv_k = kts, kte+1
-                  write(temp_str, '(E15.7,A)') clwpth(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
-               do csv_k = kts, kte+1
-                  write(temp_str, '(E15.7,A)') ciwpth(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
-               do csv_k = kts, kte+1
-                  write(temp_str, '(E15.7,A)') cswpth(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
-               do csv_k = kts, kte+1
-                  write(temp_str, '(E15.7,A)') rel(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
-               do csv_k = kts, kte+1
-                  write(temp_str, '(E15.7,A)') rei(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
-               do csv_k = kts, kte+1
-                  write(temp_str, '(E15.7,A)') res(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
+               ! ! 写入垂直分层的输入变量
+               ! do csv_k = kts, kte+1
+               !    write(temp_str, '(E15.7,A)') play(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
+               ! do csv_k = kts, kte+2
+               !    write(temp_str, '(E15.7,A)') plev(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
+               ! do csv_k = kts, kte+1
+               !    write(temp_str, '(E15.7,A)') tlay(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
+               ! do csv_k = kts, kte+2
+               !    write(temp_str, '(E15.7,A)') tlev(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
+               ! do csv_k = kts, kte+1
+               !    write(temp_str, '(E15.7,A)') h2ovmr(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
+               ! do csv_k = kts, kte+1
+               !    write(temp_str, '(E15.7,A)') o3vmr(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
+               ! do csv_k = kts, kte+1
+               !    write(temp_str, '(E15.7,A)') co2vmr(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
+               ! do csv_k = kts, kte+1
+               !    write(temp_str, '(E15.7,A)') ch4vmr(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
+               ! do csv_k = kts, kte+1
+               !    write(temp_str, '(E15.7,A)') n2ovmr(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
+               ! do csv_k = kts, kte+1
+               !    write(temp_str, '(E15.7,A)') o2vmr(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
+               ! do csv_k = kts, kte+1
+               !    write(temp_str, '(E15.7,A)') cldfrac(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
+               ! do csv_k = kts, kte+1
+               !    write(temp_str, '(E15.7,A)') clwpth(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
+               ! do csv_k = kts, kte+1
+               !    write(temp_str, '(E15.7,A)') ciwpth(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
+               ! do csv_k = kts, kte+1
+               !    write(temp_str, '(E15.7,A)') cswpth(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
+               ! do csv_k = kts, kte+1
+               !    write(temp_str, '(E15.7,A)') rel(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
+               ! do csv_k = kts, kte+1
+               !    write(temp_str, '(E15.7,A)') rei(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
+               ! do csv_k = kts, kte+1
+               !    write(temp_str, '(E15.7,A)') res(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
                
-               ! 写入垂直分层的输出变量
-               do csv_k = kts, kte+2
-                  write(temp_str, '(E15.7,A)') swuflx(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
-               do csv_k = kts, kte+2
-                  write(temp_str, '(E15.7,A)') swdflx(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
-               do csv_k = kts, kte+1
-                  write(temp_str, '(E15.7,A)') swhr(1,csv_k), ','
-                  csv_line = trim(csv_line) // trim(temp_str)
-               end do
+               ! ! 写入垂直分层的输出变量
+               ! do csv_k = kts, kte+2
+               !    write(temp_str, '(E15.7,A)') swuflx(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
+               ! do csv_k = kts, kte+2
+               !    write(temp_str, '(E15.7,A)') swdflx(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
+               ! do csv_k = kts, kte+1
+               !    write(temp_str, '(E15.7,A)') swhr(1,csv_k), ','
+               !    csv_line = trim(csv_line) // trim(temp_str)
+               ! end do
                
-               ! 去掉最后一个逗号并打印
-               csv_line = trim(csv_line)
-               csv_line(len_trim(csv_line):len_trim(csv_line)) = ' '
-               print '(A)', trim(csv_line)
+               ! ! 去掉最后一个逗号并打印
+               ! csv_line = trim(csv_line)
+               ! csv_line(len_trim(csv_line):len_trim(csv_line)) = ' '
+               ! print '(A)', trim(csv_line)
 
                !--- OUTPUTS:
                gsw(i,j)  = swdflx(1,1) - swuflx(1,1)
