@@ -844,6 +844,9 @@
 !call to longwave radiation scheme:
  radiation_lw_select: select case (trim(radt_lw_scheme))
     case ("rrtmg_lw")
+
+       xtime_m = xtime_s/60.
+
        o3input = 0
        if(config_o3climatology) o3input = 2
 
@@ -878,7 +881,7 @@
             rre_ice  = rreice_p    , rre_snow   = rresnow_p     , lwupt     = lwupt_p    , &
             lwuptc   = lwuptc_p    , lwdnt      = lwdnt_p       , lwdntc    = lwdntc_p   , &
             lwupb    = lwupb_p     , lwupbc     = lwupbc_p      , lwdnb     = lwdnb_p    , &
-            lwdnbc   = lwdnbc_p    ,                                                       &
+            lwdnbc   = lwdnbc_p    ,xtime    = xtime_m      ,   xlong    = xlon_p      ,   &
             ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde ,        &
             ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme ,        &
             its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte          &

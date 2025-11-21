@@ -11525,6 +11525,7 @@ CONTAINS
 
 !=================================================================================================================
    subroutine rrtmg_lwrad( &
+      xtime, xlong, &
       p3d, p8w, pi3d, t3d, t8w, dz8w, qv3d, qc3d, qr3d, &
       qi3d, qs3d, qg3d, cldfra3d, o33d, tsk, emiss, &
       xland, xice, snow, xlat, julday, icloud, &
@@ -11549,11 +11550,12 @@ CONTAINS
                             ims, ime, jms, jme, kms, kme, &
                             its, ite, jts, jte, kts, kte
       integer, intent(in):: julday
+      real, intent(in):: xtime
       integer, intent(in):: icloud, cldovrlp, idcor
       integer, intent(in):: has_reqc, has_reqi, has_reqs
       integer, intent(in), optional:: o3input
 
-      real, intent(in), dimension(ims:ime, jms:jme):: emiss, tsk, snow, xice, xland, xlat
+      real, intent(in), dimension(ims:ime, jms:jme):: emiss, tsk, snow, xice, xland, xlat, xlong
 
       real, intent(in), dimension(ims:ime, kms:kme, jms:jme):: t3d, p3d, pi3d
       real, intent(in), dimension(ims:ime, kms:kme, jms:jme):: dz8w, p8w, t8w
@@ -12155,7 +12157,7 @@ CONTAINS
             
             if (first_call) then
                ! 打印CSV表头 - 先写时间和位置信息
-               write(csv_line, '(A)') 'xtime,gmt,julday,xlat,xlong,i,j,ncol,nlay,icld,'// &
+               write(csv_line, '(A)') 'xtime,julday,xlat,xlong,i,j,ncol,nlay,icld,'// &
                     'tsfc,emis,'
                
                ! 添加垂直分层变量的表头
@@ -12270,9 +12272,9 @@ CONTAINS
             !--- 在CALL之后打印数据：
          
             ! 打印数据行 - 确保包含所有关键输入变量
-            write(csv_line, '(E15.7,A,E15.7,A,I0,A,E15.7,A,E15.7,A,I0,A,I0,A,I0,A,I0,A,I0,A,'// &
+            write(csv_line, '(E15.7,A,I0,A,E15.7,A,E15.7,A,I0,A,I0,A,I0,A,I0,A,I0,A,'// &
             'E15.7,A,E15.7,A)') &
-            xtime, ',', gmt, ',', julday, ',', xlat(i,j), ',', xlong(i,j), ',', &
+            xtime, ',', julday, ',', xlat(i,j), ',', xlong(i,j), ',', &
             i, ',', j, ',', ncol, ',', nlay, ',', icld, ',', &
             tsfc(1), ',', emis(1,1), ','
 
