@@ -10214,7 +10214,7 @@ CONTAINS
 
             if (coszrs.le.0.0) dorrsw = .false.
 
-            if(dorrsw) then
+            if(.true.) then
 
                !--- initialize local latitude:
                lat = xlat(i,j)
@@ -10808,43 +10808,62 @@ CONTAINS
                csv_line(len_trim(csv_line):len_trim(csv_line)) = ' '
                print '(A)', trim(csv_line)
 
-               !--- OUTPUTS:
-               gsw(i,j)  = swdflx(1,1) - swuflx(1,1)
-               swcf(i,j) = (swdflx(1,kte+2)-swuflx(1,kte+2)) - (swdflxc(1,kte+2)-swuflxc(1,kte+2))
+               if(dorrsw) then
 
-               if(present(swupt)) then
-                  !output up and down toa fluxes for total and clear sky:
-                  swupt(i,j)  = swuflx(1,kte+2)
-                  swuptc(i,j) = swuflxc(1,kte+2)
-                  swdnt(i,j)  = swdflx(1,kte+2)
-                  swdntc(i,j) = swdflxc(1,kte+2)
-                  !output up and down surface fluxes for total and clear sky:
-                  swupb(i,j)  = swuflx(1,1)
-                  swupbc(i,j) = swuflxc(1,1)
-                  swdnb(i,j)  = swdflx(1,1)
-                  swdnbc(i,j) = swdflxc(1,1)
-               endif
+                  !--- OUTPUTS:
+                  gsw(i,j)  = swdflx(1,1) - swuflx(1,1)
+                  swcf(i,j) = (swdflx(1,kte+2)-swuflx(1,kte+2)) - (swdflxc(1,kte+2)-swuflxc(1,kte+2))
 
-               if(present(swddir) .and. present(swddni) .and. present(swddif)) then
-                  swddir(i,j)  = swdkdir(1,1)          ! jararias 2013/08/10
-                  swddni(i,j)  = swddir(i,j) / coszrs  ! jararias 2013/08/10
-                  swddif(i,j)  = swdkdif(1,1)          ! jararias 2013/08/10
-               endif
+                  if(present(swupt)) then
+                     !output up and down toa fluxes for total and clear sky:
+                     swupt(i,j)  = swuflx(1,kte+2)
+                     swuptc(i,j) = swuflxc(1,kte+2)
+                     swdnt(i,j)  = swdflx(1,kte+2)
+                     swdntc(i,j) = swdflxc(1,kte+2)
+                     !output up and down surface fluxes for total and clear sky:
+                     swupb(i,j)  = swuflx(1,1)
+                     swupbc(i,j) = swuflxc(1,1)
+                     swdnb(i,j)  = swdflx(1,1)
+                     swdnbc(i,j) = swdflxc(1,1)
+                  endif
 
-               if(present (swupflx)) then
-                  do k = kts, kte+2
-                     swupflx(i,k,j)  = swuflx(1,k)
-                     swupflxc(i,k,j) = swuflxc(1,k)
-                     swdnflx(i,k,j)  = swdflx(1,k)
-                     swdnflxc(i,k,j) = swdflxc(1,k)
+                  if(present(swddir) .and. present(swddni) .and. present(swddif)) then
+                     swddir(i,j)  = swdkdir(1,1)          ! jararias 2013/08/10
+                     swddni(i,j)  = swddir(i,j) / coszrs  ! jararias 2013/08/10
+                     swddif(i,j)  = swdkdif(1,1)          ! jararias 2013/08/10
+                  endif
+
+                  if(present (swupflx)) then
+                     do k = kts, kte+2
+                        swupflx(i,k,j)  = swuflx(1,k)
+                        swupflxc(i,k,j) = swuflxc(1,k)
+                        swdnflx(i,k,j)  = swdflx(1,k)
+                        swdnflxc(i,k,j) = swdflxc(1,k)
+                     enddo
+                  endif
+
+                  !--- output heating rate tendency; convert heating rate from K/d to K/s:
+                  do k = kts, kte
+                     tten1d(k) = swhr(ncol,k)/86400.
+                     rthratensw(i,k,j) = tten1d(k)/pi3d(i,k,j)
                   enddo
-               endif
+                  
+               else
 
-               !--- output heating rate tendency; convert heating rate from K/d to K/s:
-               do k = kts, kte
-                  tten1d(k) = swhr(ncol,k)/86400.
-                  rthratensw(i,k,j) = tten1d(k)/pi3d(i,k,j)
-               enddo
+                  if(present(swupt)) then
+                     !output up and down toa fluxes for total and clear sky:
+                     swupt(i,j)     = 0.
+                     swuptc(i,j)    = 0.
+                     swdnt(i,j)     = 0.
+                     swdntc(i,j)    = 0.
+                     !output up and down surface fluxes for total and clear sky:
+                     swupb(i,j)     = 0.
+                     swupbc(i,j)    = 0.
+                     swdnb(i,j)     = 0.
+                     swdnbc(i,j)    = 0.
+                  endif
+   
+               endif
 
             else
 
