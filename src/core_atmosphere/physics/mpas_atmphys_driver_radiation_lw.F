@@ -157,6 +157,8 @@
 
        if(.not.allocated(pin_p)        ) allocate(pin_p(num_oznlevels)                     )
        if(.not.allocated(o3clim_p)     ) allocate(o3clim_p(ims:ime,1:num_oznlevels,jms:jme))
+       if(.not.allocated(coszr_p)      ) allocate(coszr_p(ims:ime,jms:jme)              )
+       if(.not.allocated(sfc_albedo_p) ) allocate(sfc_albedo_p(ims:ime,jms:jme)         )
 
     case("cam_lw")
        if(.not.allocated(xlat_p)       ) allocate(xlat_p(ims:ime,jms:jme)               )
@@ -256,6 +258,8 @@
 
        if(allocated(pin_p)        ) deallocate(pin_p        )
        if(allocated(o3clim_p)     ) deallocate(o3clim_p     )
+       if(allocated(coszr_p)      ) deallocate(coszr_p      )
+       if(allocated(sfc_albedo_p) ) deallocate(sfc_albedo_p )
 
     case("cam_lw")
        if(allocated(pin_p)        ) deallocate(pin_p        )
@@ -320,6 +324,8 @@
  character(len=StrKIND),pointer:: radt_lw_scheme
  character(len=StrKIND),pointer:: microp_scheme
 
+ real(kind=RKIND),dimension(:),pointer  :: coszr
+
  real(kind=RKIND),dimension(:),pointer    :: latCell,lonCell
  real(kind=RKIND),dimension(:),pointer    :: skintemp,snow,xice,xland
  real(kind=RKIND),dimension(:),pointer    :: m_ps,pin
@@ -334,6 +340,8 @@
  real(kind=RKIND),dimension(:,:),allocatable:: p2d,o32d
 
 !-----------------------------------------------------------------------------------------------------------------
+
+ call mpas_pool_get_array(diag_physics,'coszr'     ,coszr     )
 
  call mpas_pool_get_config(configs,'config_microp_re'     ,config_microp_re    )
  call mpas_pool_get_config(configs,'config_o3climatology' ,config_o3climatology)
@@ -455,6 +463,14 @@
 
           case default
        end select microp_select
+
+      ! added by sty
+      do j = jts,jte
+      do i = its,ite
+            coszr_p(i,j) = coszr(i) 
+            sfc_albedo_p(i,j) = sfc_albedo(i)
+      enddo
+      enddo
 
        do j = jts,jte
        do k = kts,kte+2
@@ -881,7 +897,8 @@
             rre_ice  = rreice_p    , rre_snow   = rresnow_p     , lwupt     = lwupt_p    , &
             lwuptc   = lwuptc_p    , lwdnt      = lwdnt_p       , lwdntc    = lwdntc_p   , &
             lwupb    = lwupb_p     , lwupbc     = lwupbc_p      , lwdnb     = lwdnb_p    , &
-            lwdnbc   = lwdnbc_p    ,xtime    = xtime_m      ,   xlong    = xlon_p      ,   &
+            lwdnbc   = lwdnbc_p    , xtime    = xtime_m      ,   xlong    = xlon_p      ,  &
+            albedo   = sfc_albedo_p, coszr    = coszr_p      ,                             &
             ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde ,        &
             ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme ,        &
             its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte          &
