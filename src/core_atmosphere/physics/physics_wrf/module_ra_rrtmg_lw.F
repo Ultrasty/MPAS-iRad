@@ -12178,27 +12178,27 @@ CONTAINS
                end do
             end do
 
-            input(i,kts:kte+1,1) = albedo(i,j)         !asdir only in sw
-            input(i,kts:kte+1,2) = ch4vmr(1,kts:kte+1) !ch4vmr
-            input(i,kts:kte+1,3) = ciwpth(1,kts:kte+1) !ciwpth
-            input(i,kts:kte+1,4) = cldfrac(1,kts:kte+1)!cldfrac
-            input(i,kts:kte+1,5) = clwpth(1,kts:kte+1) !clwpth
-            input(i,kts:kte+1,6) = co2vmr(1,kts:kte+1) !co2vmr
-            input(i,:,7) = coszr(i,j)                  !coszen only in sw
-            input(i,kts:kte+1,8) = cswpth(1,kts:kte+1) !cswpth
-            input(i,:,9) = emis(1,1)                   !emis
-            input(i,kts:kte+1,10) = h2ovmr(1,kts:kte+1)!h2ovmr
-            input(i,kts:kte+1,11) = n2ovmr(1,kts:kte+1)!n2ovmr
-            input(i,kts:kte+1,12) = o2vmr(1,kts:kte+1) !o2vmr
-            input(i,kts:kte+1,13) = o3vmr(1,kts:kte+1) !o3vmr
-            input(i,kts:kte+1,14) = play(1,kts:kte+1)  !play
-            input(i,kts:kte+2,15) = plev(1,kts:kte+2)  !plev
-            input(i,kts:kte+1,16) = rei(1,kts:kte+1)   !rei
-            input(i,kts:kte+1,17) = rel(1,kts:kte+1)   !rel
-            input(i,kts:kte+1,18) = res(1,kts:kte+1)   !res
-            input(i,kts:kte+1,19) = tlay(1,kts:kte+1)  !tlay
-            input(i,kts:kte+2,20) = tlev(1,kts:kte+2)  !tlev
-            input(i,:,21) = tsfc(1)                    !tsfc
+            nn_input(i,kts:kte+1,1) = albedo(i,j)         !asdir only in sw
+            nn_input(i,kts:kte+1,2) = ch4vmr(1,kts:kte+1) !ch4vmr
+            nn_input(i,kts:kte+1,3) = ciwpth(1,kts:kte+1) !ciwpth
+            nn_input(i,kts:kte+1,4) = cldfrac(1,kts:kte+1)!cldfrac
+            nn_input(i,kts:kte+1,5) = clwpth(1,kts:kte+1) !clwpth
+            nn_input(i,kts:kte+1,6) = co2vmr(1,kts:kte+1) !co2vmr
+            nn_input(i,:,7) = coszr(i,j)                  !coszen only in sw
+            nn_input(i,kts:kte+1,8) = cswpth(1,kts:kte+1) !cswpth
+            nn_input(i,:,9) = emis(1,1)                   !emis
+            nn_input(i,kts:kte+1,10) = h2ovmr(1,kts:kte+1)!h2ovmr
+            nn_input(i,kts:kte+1,11) = n2ovmr(1,kts:kte+1)!n2ovmr
+            nn_input(i,kts:kte+1,12) = o2vmr(1,kts:kte+1) !o2vmr
+            nn_input(i,kts:kte+1,13) = o3vmr(1,kts:kte+1) !o3vmr
+            nn_input(i,kts:kte+1,14) = play(1,kts:kte+1)  !play
+            nn_input(i,kts:kte+2,15) = plev(1,kts:kte+2)  !plev
+            nn_input(i,kts:kte+1,16) = rei(1,kts:kte+1)   !rei
+            nn_input(i,kts:kte+1,17) = rel(1,kts:kte+1)   !rel
+            nn_input(i,kts:kte+1,18) = res(1,kts:kte+1)   !res
+            nn_input(i,kts:kte+1,19) = tlay(1,kts:kte+1)  !tlay
+            nn_input(i,kts:kte+2,20) = tlev(1,kts:kte+2)  !tlev
+            nn_input(i,:,21) = tsfc(1)                    !tsfc
             
          end do i_loop !end longitude loop.
 
@@ -12221,10 +12221,10 @@ CONTAINS
       call test_model_delete(model)
 
 !--- latitude loop:
-      j_loop: do j = jts, jte
+      do j = jts, jte
 
          !--- longitude loop:
-         i_loop: do i = its, ite
+         do i = its, ite
             
             ! ! 写入垂直分层的输出变量
             ! do csv_k = kts, kte+2
@@ -12337,9 +12337,9 @@ CONTAINS
             if (allocated(taucmcl)) deallocate (taucmcl)
             if (allocated(tauaer)) deallocate (tauaer)
 
-         end do i_loop !end longitude loop.
+         end do !end longitude loop.
 
-      end do j_loop !end latitude loop.
+      end do !end latitude loop.
 
    end subroutine rrtmg_lwrad
 
