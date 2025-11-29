@@ -12199,88 +12199,6 @@ CONTAINS
             nn_input(i,kts:kte+1,19) = tlay(1,kts:kte+1)  !tlay
             nn_input(i,kts:kte+2,20) = tlev(1,kts:kte+2)  !tlev
             nn_input(i,:,21) = tsfc(1)                    !tsfc
-            
-         end do i_loop !end longitude loop.
-
-      end do j_loop !end latitude loop.
-
-
-
-            !--- CALL TO THE RRTMG LONG WAVE RADIATION MODEL:
-            ! call rrtmg_lw &
-            !    (ncol, nlay, icld, play, plev, tlay, &
-            !     tlev, tsfc, h2ovmr, o3vmr, co2vmr, ch4vmr, &
-            !     n2ovmr, o2vmr, cfc11vmr, cfc12vmr, cfc22vmr, ccl4vmr, &
-            !     emis, inflglw, iceflglw, liqflglw, cldfmcl, taucmcl, &
-            !     ciwpmcl, clwpmcl, cswpmcl, reicmcl, relqmcl, resnmcl, &
-            !     tauaer, uflx, dflx, hr, uflxc, dflxc, &
-            !     hrc, uflxcln, dflxcln, calc_clean_atm_diag)
-
-      model = test_model_new(model_loc, use_gpu)
-      sty_res = test_model_forward(model, nn_input, nn_output)
-      call test_model_delete(model)
-
-!--- latitude loop:
-      do j = jts, jte
-
-         !--- longitude loop:
-         do i = its, ite
-            
-            ! ! 写入垂直分层的输出变量
-            ! do csv_k = kts, kte+2
-            !    write(temp_str, '(E15.7,A)') uflx(1,csv_k), ','
-            !    csv_line = trim(csv_line) // trim(temp_str)
-            ! end do
-            ! do csv_k = kts, kte+2
-            !    write(temp_str, '(E15.7,A)') dflx(1,csv_k), ','
-            !    csv_line = trim(csv_line) // trim(temp_str)
-            ! end do
-            ! do csv_k = kts, kte+1
-            !    write(temp_str, '(E15.7,A)') hr(1,csv_k), ','
-            !    csv_line = trim(csv_line) // trim(temp_str)
-            ! end do
-            ! do csv_k = kts, kte+1
-            !    write(temp_str, '(E15.7,A)') pi3d(i, csv_k, j), ','
-            !    csv_line = trim(csv_line) // trim(temp_str)
-            ! end do
-
-            dflx(1,kts:kte+2) = nn_output(i,kts:kte+2,5)
-            uflx(1,kts:kte+2) = nn_output(i,kts:kte+2,4)
-            hr(1,kts:kte+1) = nn_output(i,kts:kte+1,6)
-
-            !--- OUTPUTS:
-            glw(i, j) = dflx(1, 1)
-            olr(i, j) = uflx(1, nlayers + 1)
-            lwcf(i, j) = uflxc(1, nlayers + 1) - uflx(1, nlayers + 1)
-
-            if (present(lwupt)) then
-               !output up and down toa fluxes for total and clear sky:
-               lwupt(i, j) = uflx(1, nlayers + 1)
-               lwuptc(i, j) = uflxc(1, nlayers + 1)
-               lwdnt(i, j) = dflx(1, nlayers + 1)
-               lwdntc(i, j) = dflxc(1, nlayers + 1)
-               !output up and down surface fluxes for total and clear sky:
-               lwupb(i, j) = uflx(1, 1)
-               lwupbc(i, j) = uflxc(1, 1)
-               lwdnb(i, j) = dflx(1, 1)
-               lwdnbc(i, j) = dflxc(1, 1)
-            end if
-
-            if (present(lwupflx)) then
-               !output up and down fluxes:
-               do k = kts, nlayers + 1
-                  lwupflx(i, k, j) = uflx(1, k)
-                  lwupflxc(i, k, j) = uflxc(1, k)
-                  lwdnflx(i, k, j) = dflx(1, k)
-                  lwdnflxc(i, k, j) = dflxc(1, k)
-               end do
-            end if
-
-            !--- output heating rate tendency. convert heating rate from K per day to K per second:
-            do k = kts, kte
-               tten1d(k) = hr(ncol, k)/86400.
-               rthratenlw(i, k, j) = tten1d(k)/pi3d(i, k, j)
-            end do
 
             !--- output the effective radii for cloud water, cloud ice, and snow:
             if (icloud .gt. 0 .and. present(rre_cloud) .and. present(rre_ice) .and. present(rre_snow)) then
@@ -12337,6 +12255,177 @@ CONTAINS
             if (allocated(taucmcl)) deallocate (taucmcl)
             if (allocated(tauaer)) deallocate (tauaer)
 
+            
+         end do i_loop !end longitude loop.
+
+      end do j_loop !end latitude loop.
+
+
+
+            !--- CALL TO THE RRTMG LONG WAVE RADIATION MODEL:
+            ! call rrtmg_lw &
+            !    (ncol, nlay, icld, play, plev, tlay, &
+            !     tlev, tsfc, h2ovmr, o3vmr, co2vmr, ch4vmr, &
+            !     n2ovmr, o2vmr, cfc11vmr, cfc12vmr, cfc22vmr, ccl4vmr, &
+            !     emis, inflglw, iceflglw, liqflglw, cldfmcl, taucmcl, &
+            !     ciwpmcl, clwpmcl, cswpmcl, reicmcl, relqmcl, resnmcl, &
+            !     tauaer, uflx, dflx, hr, uflxc, dflxc, &
+            !     hrc, uflxcln, dflxcln, calc_clean_atm_diag)
+
+      model = test_model_new(model_loc, use_gpu)
+      sty_res = test_model_forward(model, nn_input, nn_output)
+      call test_model_delete(model)
+
+!--- latitude loop:
+      do j = jts, jte
+
+         !--- longitude loop:
+         do i = its, ite
+            
+            ! ! 写入垂直分层的输出变量
+            ! do csv_k = kts, kte+2
+            !    write(temp_str, '(E15.7,A)') uflx(1,csv_k), ','
+            !    csv_line = trim(csv_line) // trim(temp_str)
+            ! end do
+            ! do csv_k = kts, kte+2
+            !    write(temp_str, '(E15.7,A)') dflx(1,csv_k), ','
+            !    csv_line = trim(csv_line) // trim(temp_str)
+            ! end do
+            ! do csv_k = kts, kte+1
+            !    write(temp_str, '(E15.7,A)') hr(1,csv_k), ','
+            !    csv_line = trim(csv_line) // trim(temp_str)
+            ! end do
+            ! do csv_k = kts, kte+1
+            !    write(temp_str, '(E15.7,A)') pi3d(i, csv_k, j), ','
+            !    csv_line = trim(csv_line) // trim(temp_str)
+            ! end do
+
+            if (.not. allocated(o3mmr)) allocate (o3mmr(kts:nlayers))
+            if (.not. allocated(varint)) allocate (varint(kts:nlayers + 1))
+            if (.not. allocated(plev)) allocate (plev(1, kts:nlayers + 1))
+            if (.not. allocated(tlev)) allocate (tlev(1, kts:nlayers + 1))
+            if (.not. allocated(play)) allocate (play(1, kts:nlayers))
+            if (.not. allocated(hlay)) allocate (hlay(1, kts:nlayers))
+            if (.not. allocated(tlay)) allocate (tlay(1, kts:nlayers))
+            if (.not. allocated(h2ovmr)) allocate (h2ovmr(1, kts:nlayers))
+            if (.not. allocated(o3vmr)) allocate (o3vmr(1, kts:nlayers))
+            if (.not. allocated(co2vmr)) allocate (co2vmr(1, kts:nlayers))
+            if (.not. allocated(o2vmr)) allocate (o2vmr(1, kts:nlayers))
+            if (.not. allocated(ch4vmr)) allocate (ch4vmr(1, kts:nlayers))
+            if (.not. allocated(n2ovmr)) allocate (n2ovmr(1, kts:nlayers))
+            if (.not. allocated(cfc11vmr)) allocate (cfc11vmr(1, kts:nlayers))
+            if (.not. allocated(cfc12vmr)) allocate (cfc12vmr(1, kts:nlayers))
+            if (.not. allocated(cfc22vmr)) allocate (cfc22vmr(1, kts:nlayers))
+            if (.not. allocated(ccl4vmr)) allocate (ccl4vmr(1, kts:nlayers))
+            if (.not. allocated(clwpth)) allocate (clwpth(1, kts:nlayers))
+            if (.not. allocated(ciwpth)) allocate (ciwpth(1, kts:nlayers))
+            if (.not. allocated(cswpth)) allocate (cswpth(1, kts:nlayers))
+            if (.not. allocated(rel)) allocate (rel(1, kts:nlayers))
+            if (.not. allocated(rei)) allocate (rei(1, kts:nlayers))
+            if (.not. allocated(res)) allocate (res(1, kts:nlayers))
+            if (.not. allocated(cldfrac)) allocate (cldfrac(1, kts:nlayers))
+            if (.not. allocated(relqmcl)) allocate (relqmcl(1, kts:nlayers))
+            if (.not. allocated(reicmcl)) allocate (reicmcl(1, kts:nlayers))
+            if (.not. allocated(resnmcl)) allocate (resnmcl(1, kts:nlayers))
+            if (.not. allocated(uflx)) allocate (uflx(1, kts:nlayers + 1))
+            if (.not. allocated(dflx)) allocate (dflx(1, kts:nlayers + 1))
+            if (.not. allocated(uflxc)) allocate (uflxc(1, kts:nlayers + 1))
+            if (.not. allocated(dflxc)) allocate (dflxc(1, kts:nlayers + 1))
+            if (.not. allocated(uflxcln)) allocate (uflxcln(1, kts:nlayers + 1))
+            if (.not. allocated(dflxcln)) allocate (dflxcln(1, kts:nlayers + 1))
+            if (.not. allocated(hr)) allocate (hr(1, kts:nlayers))
+            if (.not. allocated(hrc)) allocate (hrc(1, kts:nlayers))
+            if (.not. allocated(taucld)) allocate (taucld(nbndlw, 1, kts:nlayers))
+            if (.not. allocated(cldfmcl)) allocate (cldfmcl(ngptlw, 1, kts:nlayers))
+            if (.not. allocated(clwpmcl)) allocate (clwpmcl(ngptlw, 1, kts:nlayers))
+            if (.not. allocated(ciwpmcl)) allocate (ciwpmcl(ngptlw, 1, kts:nlayers))
+            if (.not. allocated(cswpmcl)) allocate (cswpmcl(ngptlw, 1, kts:nlayers))
+            if (.not. allocated(taucmcl)) allocate (taucmcl(ngptlw, 1, kts:nlayers))
+            if (.not. allocated(tauaer)) allocate (tauaer(1, kts:nlayers, nbndlw))
+
+            dflx(1,kts:kte+2) = nn_output(i,kts:kte+2,5)
+            uflx(1,kts:kte+2) = nn_output(i,kts:kte+2,4)
+            hr(1,kts:kte+1) = nn_output(i,kts:kte+1,6)
+
+            !--- OUTPUTS:
+            glw(i, j) = dflx(1, 1)
+            olr(i, j) = uflx(1, nlayers + 1)
+            ! lwcf(i, j) = uflxc(1, nlayers + 1) - uflx(1, nlayers + 1)
+
+            if (present(lwupt)) then
+               !output up and down toa fluxes for total and clear sky:
+               lwupt(i, j) = uflx(1, nlayers + 1)
+               !lwuptc(i, j) = uflxc(1, nlayers + 1)
+               lwdnt(i, j) = dflx(1, nlayers + 1)
+               !lwdntc(i, j) = dflxc(1, nlayers + 1)
+               !output up and down surface fluxes for total and clear sky:
+               lwupb(i, j) = uflx(1, 1)
+               !lwupbc(i, j) = uflxc(1, 1)
+               lwdnb(i, j) = dflx(1, 1)
+               !lwdnbc(i, j) = dflxc(1, 1)
+            end if
+
+            if (present(lwupflx)) then
+               !output up and down fluxes:
+               do k = kts, nlayers + 1
+                  lwupflx(i, k, j) = uflx(1, k)
+                  !lwupflxc(i, k, j) = uflxc(1, k)
+                  lwdnflx(i, k, j) = dflx(1, k)
+                  !lwdnflxc(i, k, j) = dflxc(1, k)
+               end do
+            end if
+
+            !--- output heating rate tendency. convert heating rate from K per day to K per second:
+            do k = kts, kte
+               tten1d(k) = hr(ncol, k)/86400.
+               rthratenlw(i, k, j) = tten1d(k)/pi3d(i, k, j)
+            end do
+
+
+
+            if (allocated(o3mmr)) deallocate (o3mmr)
+            if (allocated(varint)) deallocate (varint)
+            if (allocated(plev)) deallocate (plev)
+            if (allocated(tlev)) deallocate (tlev)
+            if (allocated(play)) deallocate (play)
+            if (allocated(hlay)) deallocate (hlay)
+            if (allocated(tlay)) deallocate (tlay)
+            if (allocated(h2ovmr)) deallocate (h2ovmr)
+            if (allocated(o3vmr)) deallocate (o3vmr)
+            if (allocated(co2vmr)) deallocate (co2vmr)
+            if (allocated(o2vmr)) deallocate (o2vmr)
+            if (allocated(ch4vmr)) deallocate (ch4vmr)
+            if (allocated(n2ovmr)) deallocate (n2ovmr)
+            if (allocated(cfc11vmr)) deallocate (cfc11vmr)
+            if (allocated(cfc12vmr)) deallocate (cfc12vmr)
+            if (allocated(cfc22vmr)) deallocate (cfc22vmr)
+            if (allocated(ccl4vmr)) deallocate (ccl4vmr)
+            if (allocated(clwpth)) deallocate (clwpth)
+            if (allocated(ciwpth)) deallocate (ciwpth)
+            if (allocated(cswpth)) deallocate (cswpth)
+            if (allocated(rel)) deallocate (rel)
+            if (allocated(rei)) deallocate (rei)
+            if (allocated(res)) deallocate (res)
+            if (allocated(cldfrac)) deallocate (cldfrac)
+            if (allocated(relqmcl)) deallocate (relqmcl)
+            if (allocated(reicmcl)) deallocate (reicmcl)
+            if (allocated(resnmcl)) deallocate (resnmcl)
+            if (allocated(uflx)) deallocate (uflx)
+            if (allocated(dflx)) deallocate (dflx)
+            if (allocated(uflxc)) deallocate (uflxc)
+            if (allocated(dflxc)) deallocate (dflxc)
+            if (allocated(uflxcln)) deallocate (uflxcln)
+            if (allocated(dflxcln)) deallocate (dflxcln)
+            if (allocated(hr)) deallocate (hr)
+            if (allocated(hrc)) deallocate (hrc)
+            if (allocated(taucld)) deallocate (taucld)
+            if (allocated(cldfmcl)) deallocate (cldfmcl)
+            if (allocated(clwpmcl)) deallocate (clwpmcl)
+            if (allocated(ciwpmcl)) deallocate (ciwpmcl)
+            if (allocated(cswpmcl)) deallocate (cswpmcl)
+            if (allocated(taucmcl)) deallocate (taucmcl)
+            if (allocated(tauaer)) deallocate (tauaer)
+            
          end do !end longitude loop.
 
       end do !end latitude loop.
