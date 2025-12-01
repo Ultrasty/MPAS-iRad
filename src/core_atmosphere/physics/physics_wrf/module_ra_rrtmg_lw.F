@@ -11532,7 +11532,7 @@ CONTAINS
       qi3d, qs3d, qg3d, cldfra3d, o33d, tsk, emiss, &
       xland, xice, snow, xlat, julday, icloud, &
       cldovrlp, idcor, o3input, noznlevels, &
-      pin, o3clim, glw, olr, lwcf, rthratenlw, &
+      pin, o3clim, glw, olr, lwcf, rthratenlw,rthratensw, &
       has_reqc, has_reqi, has_reqs, re_cloud, &
       re_ice, re_snow, rre_cloud, rre_ice, rre_snow, &
       lwupt, lwuptc, lwdnt, lwdntc, &
@@ -11581,7 +11581,7 @@ CONTAINS
       real, intent(inout), dimension(ims:ime, jms:jme), optional:: &
          lwupt, lwuptc, lwdnt, lwdntc, lwupb, lwupbc, lwdnb, lwdnbc
 
-      real, intent(inout), dimension(ims:ime, kms:kme, jms:jme):: rthratenlw
+      real, intent(inout), dimension(ims:ime, kms:kme, jms:jme):: rthratenlw,rthratensw
 
 !--- output arguments:
       real, intent(out), dimension(ims:ime, kms:kme, jms:jme), optional:: &
@@ -11607,7 +11607,7 @@ CONTAINS
       real, dimension(1, nbndlw):: emis
 
       real, dimension(kts:kte):: &
-         tten1d, cldfra1d, dz1d, p1d, t1d, qv1d, qc1d, qr1d, qi1d, qs1d, qg1d, o31d
+         tten1d, swtten1d, cldfra1d, dz1d, p1d, t1d, qv1d, qc1d, qr1d, qi1d, qs1d, qg1d, o31d
       real, dimension(kts:kte + 1):: pw1d, tw1d
 
 !--- additional local variables and arrays needed to include additional layers between the model top
@@ -11618,7 +11618,7 @@ CONTAINS
       real, dimension(:, :), allocatable:: &
          plev, tlev, play, hlay, tlay, h2ovmr, o3vmr, co2vmr, o2vmr, ch4vmr, n2ovmr, cfc11vmr, &
          cfc12vmr, cfc22vmr, ccl4vmr, clwpth, ciwpth, cswpth, rel, rei, res, cldfrac, relqmcl, reicmcl, resnmcl
-      real, dimension(:, :), allocatable:: uflx, dflx, uflxc, dflxc, hr, hrc
+      real, dimension(:, :), allocatable:: uflx, dflx, uflxc, dflxc, hr, hrc, swhr, swuflx, swdflx
       real, dimension(:, :), allocatable:: uflxcln, dflxcln
       real, dimension(:, :, :), allocatable:: taucld, cldfmcl, clwpmcl, ciwpmcl, cswpmcl, taucmcl, tauaer
 
@@ -11799,6 +11799,7 @@ CONTAINS
             !--- initialize the local radiative heating rate:
             do k = kts, kte
                tten1d(k) = 0.
+               swtten1d(k) = 0.
             end do
 
             !--- add extra layers to include absorption and transmission between the top of the model and the top of
@@ -11837,11 +11838,14 @@ CONTAINS
             if (.not. allocated(resnmcl)) allocate (resnmcl(1, kts:nlayers))
             if (.not. allocated(uflx)) allocate (uflx(1, kts:nlayers + 1))
             if (.not. allocated(dflx)) allocate (dflx(1, kts:nlayers + 1))
+            if (.not. allocated(swuflx)) allocate (swuflx(1, kts:nlayers + 1))
+            if (.not. allocated(swdflx)) allocate (swdflx(1, kts:nlayers + 1))
             if (.not. allocated(uflxc)) allocate (uflxc(1, kts:nlayers + 1))
             if (.not. allocated(dflxc)) allocate (dflxc(1, kts:nlayers + 1))
             if (.not. allocated(uflxcln)) allocate (uflxcln(1, kts:nlayers + 1))
             if (.not. allocated(dflxcln)) allocate (dflxcln(1, kts:nlayers + 1))
             if (.not. allocated(hr)) allocate (hr(1, kts:nlayers))
+            if (.not. allocated(swhr)) allocate (swhr(1, kts:nlayers))
             if (.not. allocated(hrc)) allocate (hrc(1, kts:nlayers))
             if (.not. allocated(taucld)) allocate (taucld(nbndlw, 1, kts:nlayers))
             if (.not. allocated(cldfmcl)) allocate (cldfmcl(ngptlw, 1, kts:nlayers))
@@ -11880,9 +11884,12 @@ CONTAINS
                   uflxc(n, k) = 0.
                   dflx(n, k) = 0.
                   dflxc(n, k) = 0.
+                  swuflx(n, k) = 0.
+                  swdflx(n, k) = 0.
                   uflxcln(n, k) = 0.
                   dflxcln(n, k) = 0.
                   hr(n, k) = 0.
+                  swhr(n, k) = 0.
                   hrc(n, k) = 0.
                   taucld(1:nbndlw, n, k) = 0.
                   tauaer(n, k, 1:nbndlw) = 0.
@@ -11898,6 +11905,9 @@ CONTAINS
                dflx(n, nlayers + 1) = 0.
                dflxc(n, nlayers + 1) = 0.
                dflxcln(n, nlayers + 1) = 0.
+
+               swdflx(n, nlayers + 1) = 0.
+               swuflx(n, nlayers + 1) = 0.
             end do
 
             !--- fill local arrays with input sounding. convert water vapor mass mixing ratio to volume mixing ratio:
@@ -12241,11 +12251,14 @@ CONTAINS
             if (allocated(resnmcl)) deallocate (resnmcl)
             if (allocated(uflx)) deallocate (uflx)
             if (allocated(dflx)) deallocate (dflx)
+            if (allocated(swuflx)) deallocate (swuflx)
+            if (allocated(swdflx)) deallocate (swdflx)
             if (allocated(uflxc)) deallocate (uflxc)
             if (allocated(dflxc)) deallocate (dflxc)
             if (allocated(uflxcln)) deallocate (uflxcln)
             if (allocated(dflxcln)) deallocate (dflxcln)
             if (allocated(hr)) deallocate (hr)
+            if (allocated(swhr)) deallocate (swhr)
             if (allocated(hrc)) deallocate (hrc)
             if (allocated(taucld)) deallocate (taucld)
             if (allocated(cldfmcl)) deallocate (cldfmcl)
@@ -12329,11 +12342,14 @@ CONTAINS
             if (.not. allocated(resnmcl)) allocate (resnmcl(1, kts:nlayers))
             if (.not. allocated(uflx)) allocate (uflx(1, kts:nlayers + 1))
             if (.not. allocated(dflx)) allocate (dflx(1, kts:nlayers + 1))
+            if (.not. allocated(swuflx)) allocate (swuflx(1, kts:nlayers + 1))
+            if (.not. allocated(swdflx)) allocate (swdflx(1, kts:nlayers + 1))
             if (.not. allocated(uflxc)) allocate (uflxc(1, kts:nlayers + 1))
             if (.not. allocated(dflxc)) allocate (dflxc(1, kts:nlayers + 1))
             if (.not. allocated(uflxcln)) allocate (uflxcln(1, kts:nlayers + 1))
             if (.not. allocated(dflxcln)) allocate (dflxcln(1, kts:nlayers + 1))
             if (.not. allocated(hr)) allocate (hr(1, kts:nlayers))
+            if (.not. allocated(swhr)) allocate (swhr(1, kts:nlayers))
             if (.not. allocated(hrc)) allocate (hrc(1, kts:nlayers))
             if (.not. allocated(taucld)) allocate (taucld(nbndlw, 1, kts:nlayers))
             if (.not. allocated(cldfmcl)) allocate (cldfmcl(ngptlw, 1, kts:nlayers))
@@ -12346,6 +12362,10 @@ CONTAINS
             dflx(1,kts:kte+2) = nn_output(i,kts:kte+2,5)
             uflx(1,kts:kte+2) = nn_output(i,kts:kte+2,4)
             hr(1,kts:kte+1) = nn_output(i,kts:kte+1,6)
+
+            swdflx(1,kts:kte+2) = nn_output(i,kts:kte+2,2)
+            swuflx(1,kts:kte+2) = nn_output(i,kts:kte+2,1)
+            swhr(1,kts:kte+1) = nn_output(i,kts:kte+1,3)
 
 
             ! for debug
@@ -12362,6 +12382,8 @@ CONTAINS
             olr(i, j) = uflx(1, kte+2)
             ! lwcf(i, j) = uflxc(1, nlayers + 1) - uflx(1, nlayers + 1)
 
+            gsw(i, j) = swdflx(1, 1)
+
             if (present(lwupt)) then
                !output up and down toa fluxes for total and clear sky:
                lwupt(i, j) = uflx(1, kte+2)
@@ -12373,6 +12395,12 @@ CONTAINS
                !lwupbc(i, j) = uflxc(1, 1)
                lwdnb(i, j) = dflx(1, 1)
                !lwdnbc(i, j) = dflxc(1, 1)
+
+               swupt(i, j) = swuflx(1, kte+2)
+               swdnt(i, j) = swdflx(1, kte+2)
+               swupb(i, j) = swuflx(1, 1)
+               swdnb(i, j) = swdflx(1, 1)
+
             end if
 
             if (present(lwupflx)) then
@@ -12388,9 +12416,10 @@ CONTAINS
             !--- output heating rate tendency. convert heating rate from K per day to K per second:
             do k = kts, kte
                tten1d(k) = hr(ncol, k)/86400.
+               swtten1d(k) = swhr(ncol, k)/86400.
                rthratenlw(i, k, j) = tten1d(k)/pi3d(i, k, j)
+               rthratensw(i, k, j) = swtten1d(k)/pi3d(i, k, j)
             end do
-
 
 
             if (allocated(o3mmr)) deallocate (o3mmr)
@@ -12422,11 +12451,14 @@ CONTAINS
             if (allocated(resnmcl)) deallocate (resnmcl)
             if (allocated(uflx)) deallocate (uflx)
             if (allocated(dflx)) deallocate (dflx)
+            if (allocated(swuflx)) deallocate (swuflx)
+            if (allocated(swdflx)) deallocate (swdflx)
             if (allocated(uflxc)) deallocate (uflxc)
             if (allocated(dflxc)) deallocate (dflxc)
             if (allocated(uflxcln)) deallocate (uflxcln)
             if (allocated(dflxcln)) deallocate (dflxcln)
             if (allocated(hr)) deallocate (hr)
+            if (allocated(swhr)) deallocate (swhr)
             if (allocated(hrc)) deallocate (hrc)
             if (allocated(taucld)) deallocate (taucld)
             if (allocated(cldfmcl)) deallocate (cldfmcl)

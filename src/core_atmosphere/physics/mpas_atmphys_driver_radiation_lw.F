@@ -137,6 +137,13 @@
 
  if(.not.allocated(rthratenlw_p) ) allocate(rthratenlw_p(ims:ime,kms:kme,jms:jme) )
 
+ if(.not.allocated(rthratensw_p) ) allocate(rthratensw_p(ims:ime,kms:kme,jms:jme) )
+ if(.not.allocated(swupt_p)      ) allocate(swupt_p(ims:ime,jms:jme)              )
+ if(.not.allocated(swupb_p)      ) allocate(swupb_p(ims:ime,jms:jme)              )
+ if(.not.allocated(swdnt_p)      ) allocate(swdnt_p(ims:ime,jms:jme)              )
+ if(.not.allocated(swdnb_p)      ) allocate(swdnb_p(ims:ime,jms:jme)              )
+ if(.not.allocated(gsw_p)        ) allocate(gsw_p(ims:ime,jms:jme)                )
+
  radiation_lw_select: select case (trim(radt_lw_scheme))
     case("rrtmg_lw")
 
@@ -241,6 +248,13 @@
  if(allocated(olrtoa_p)     ) deallocate(olrtoa_p     )
  
  if(allocated(rthratenlw_p) ) deallocate(rthratenlw_p )
+
+ if(allocated(rthratensw_p) ) deallocate(rthratensw_p )
+ if(allocated(swupt_p)      ) deallocate(swupt_p      )
+ if(allocated(swupb_p)      ) deallocate(swupb_p      )
+ if(allocated(swdnt_p)      ) deallocate(swdnt_p      )
+ if(allocated(swdnb_p)      ) deallocate(swdnb_p      )
+ if(allocated(gsw_p)        ) deallocate(gsw_p        )
 
  radiation_lw_select: select case (trim(radt_lw_scheme))
     case("rrtmg_lw")
@@ -409,11 +423,18 @@
     lwupt_p(i,j)    = 0.0_RKIND
     lwuptc_p(i,j)   = 0.0_RKIND
     olrtoa_p(i,j)   = 0.0_RKIND
+
+    swdnb_p(i,j)    = 0.0_RKIND
+    swdnt_p(i,j)    = 0.0_RKIND
+    swupb_p(i,j)    = 0.0_RKIND
+    swupt_p(i,j)    = 0.0_RKIND
+    gsw_p(i,j)      = 0.0_RKIND
  enddo
  
  do k = kts,kte
  do i = its,ite
     rthratenlw_p(i,k,j) = 0.0_RKIND
+    rthratensw_p(i,k,j) = 0.0_RKIND
  enddo
  enddo
  enddo
@@ -645,7 +666,7 @@
 
  real(kind=RKIND),dimension(:),pointer :: glw,lwcf,lwdnb,lwdnbc,lwdnt,lwdntc,lwupb,lwupbc, &
                                           lwupt,lwuptc,olrtoa
- real(kind=RKIND),dimension(:,:),pointer:: rthratenlw
+ real(kind=RKIND),dimension(:,:),pointer:: rthratenlw,rthratensw
  real(kind=RKIND),dimension(:,:),pointer:: rre_cloud,rre_ice,rre_snow
 
 !local variables and arrays:
@@ -672,6 +693,7 @@
  call mpas_pool_get_array(diag_physics,'olrtoa',olrtoa)
 
  call mpas_pool_get_array(tend_physics,'rthratenlw',rthratenlw)
+ call mpas_pool_get_array(tend_physics,'rthratensw',rthratensw)
 
  do j = jts,jte
  do i = its,ite
@@ -686,11 +708,18 @@
     lwupt(i)  = lwupt_p(i,j)
     lwuptc(i) = lwuptc_p(i,j)
     olrtoa(i) = olrtoa_p(i,j)
+
+    swdnb(i)  = swdnb_p(i,j)
+    swdnt(i)  = swdnt_p(i,j)
+    swupb(i)  = swupb_p(i,j)
+    swupt(i)  = swupt_p(i,j)
+    gsw(i)    = gsw_p(i,j)
  enddo
 
  do k = kts,kte
  do i = its,ite
     rthratenlw(k,i) = rthratenlw_p(i,k,j)
+    rthratensw(k,i) = rthratensw_p(i,k,j)
  enddo
  enddo
  enddo
@@ -898,7 +927,7 @@
             lwuptc   = lwuptc_p    , lwdnt      = lwdnt_p       , lwdntc    = lwdntc_p   , &
             lwupb    = lwupb_p     , lwupbc     = lwupbc_p      , lwdnb     = lwdnb_p    , &
             lwdnbc   = lwdnbc_p    , xtime    = xtime_m      ,   xlong    = xlon_p      ,  &
-            albedo   = sfc_albedo_p, coszr    = coszr_p      ,                             &
+            albedo   = sfc_albedo_p, coszr    = coszr_p      ,   rthratensw = rthratensw_p , &
             ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde ,        &
             ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme ,        &
             its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte          &
