@@ -12347,16 +12347,26 @@ CONTAINS
             uflx(1,kts:kte+2) = nn_output(i,kts:kte+2,4)
             hr(1,kts:kte+1) = nn_output(i,kts:kte+1,6)
 
+
+            ! for debug
+            ! print *, 'i=', i, 'j=', j
+            ! print *, 'uflx shape:', shape(uflx)
+            ! print *, 'uflx(1,:):', uflx(1,kts:kte+2)
+            ! print *, 'uflx at TOA (nlayers+1):', uflx(1, nlayers+1)
+            ! print *, 'nlayers:', nlayers
+            ! print *, 'kte+2:', kte + 2
+            ! for debug
+
             !--- OUTPUTS:
             glw(i, j) = dflx(1, 1)
-            olr(i, j) = uflx(1, nlayers + 1)
+            olr(i, j) = uflx(1, kte+2)
             ! lwcf(i, j) = uflxc(1, nlayers + 1) - uflx(1, nlayers + 1)
 
             if (present(lwupt)) then
                !output up and down toa fluxes for total and clear sky:
-               lwupt(i, j) = uflx(1, nlayers + 1)
+               lwupt(i, j) = uflx(1, kte+2)
                !lwuptc(i, j) = uflxc(1, nlayers + 1)
-               lwdnt(i, j) = dflx(1, nlayers + 1)
+               lwdnt(i, j) = dflx(1, kte+2)
                !lwdntc(i, j) = dflxc(1, nlayers + 1)
                !output up and down surface fluxes for total and clear sky:
                lwupb(i, j) = uflx(1, 1)
@@ -12367,7 +12377,7 @@ CONTAINS
 
             if (present(lwupflx)) then
                !output up and down fluxes:
-               do k = kts, nlayers + 1
+               do k = kts, kte+2
                   lwupflx(i, k, j) = uflx(1, k)
                   !lwupflxc(i, k, j) = uflxc(1, k)
                   lwdnflx(i, k, j) = dflx(1, k)
