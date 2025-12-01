@@ -11539,6 +11539,7 @@ CONTAINS
       lwupb, lwupbc, lwdnb, lwdnbc, &
       lwupflx, lwupflxc, lwdnflx, lwdnflxc, &
       albedo, coszr, &
+      swupb, swupt, swdnb, swdnt, gsw, &
       ids, ide, jds, jde, kds, kde, &
       ims, ime, jms, jme, kms, kme, &
       its, ite, jts, jte, kts, kte &
@@ -11577,9 +11578,12 @@ CONTAINS
       real, intent(in), dimension(ims:ime, 1:noznlevels, jms:jme), optional:: o3clim
 
 !--- inout arguments:
-      real, intent(inout), dimension(ims:ime, jms:jme):: glw, olr, lwcf
+      real, intent(inout), dimension(ims:ime, jms:jme):: glw, gsw, olr, lwcf
       real, intent(inout), dimension(ims:ime, jms:jme), optional:: &
          lwupt, lwuptc, lwdnt, lwdntc, lwupb, lwupbc, lwdnb, lwdnbc
+      
+      real, intent(inout), dimension(ims:ime, jms:jme), optional:: &
+         swupb, swdnb, swupt, swdnt
 
       real, intent(inout), dimension(ims:ime, kms:kme, jms:jme):: rthratenlw,rthratensw
 
@@ -12210,6 +12214,8 @@ CONTAINS
             nn_input(i,kts:kte+2,20) = tlev(1,kts:kte+2)  !tlev
             nn_input(i,:,21) = tsfc(1)                    !tsfc
 
+            ! print *, "coszr(i,j)=", coszr(i,j)
+
             !--- output the effective radii for cloud water, cloud ice, and snow:
             if (icloud .gt. 0 .and. present(rre_cloud) .and. present(rre_ice) .and. present(rre_snow)) then
                do k = kts, kte
@@ -12367,6 +12373,7 @@ CONTAINS
             swuflx(1,kts:kte+2) = nn_output(i,kts:kte+2,1)
             swhr(1,kts:kte+1) = nn_output(i,kts:kte+1,3)
 
+            ! print *, "swdflx(1,1)=", swdflx(1,1)
 
             ! for debug
             ! print *, 'i=', i, 'j=', j
@@ -12382,7 +12389,9 @@ CONTAINS
             olr(i, j) = uflx(1, kte+2)
             ! lwcf(i, j) = uflxc(1, nlayers + 1) - uflx(1, nlayers + 1)
 
-            gsw(i, j) = swdflx(1, 1)
+            gsw(i,j)  = swdflx(1,1) - swuflx(1,1)
+
+            ! print *, "gsw(i,j)", gsw(i,j)
 
             if (present(lwupt)) then
                !output up and down toa fluxes for total and clear sky:

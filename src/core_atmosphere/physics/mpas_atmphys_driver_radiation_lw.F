@@ -665,7 +665,7 @@
  character(len=StrKIND),pointer:: microp_scheme
 
  real(kind=RKIND),dimension(:),pointer :: glw,lwcf,lwdnb,lwdnbc,lwdnt,lwdntc,lwupb,lwupbc, &
-                                          lwupt,lwuptc,olrtoa
+                                          lwupt,lwuptc,olrtoa, gsw,swupb,swupt,swdnb,swdnt
  real(kind=RKIND),dimension(:,:),pointer:: rthratenlw,rthratensw
  real(kind=RKIND),dimension(:,:),pointer:: rre_cloud,rre_ice,rre_snow
 
@@ -681,6 +681,12 @@
  call mpas_pool_get_config(configs,'config_radt_lw_scheme',radt_lw_scheme  )
 
  call mpas_pool_get_array(diag_physics,'glw'   ,glw   )
+ call mpas_pool_get_array(diag_physics,'gsw'   ,gsw   )
+ call mpas_pool_get_array(diag_physics,'swdnb',swdnb)
+ call mpas_pool_get_array(diag_physics,'swdnt',swdnt)
+ call mpas_pool_get_array(diag_physics,'swupb',swupb)
+ call mpas_pool_get_array(diag_physics,'swupt',swupt)
+
  call mpas_pool_get_array(diag_physics,'lwcf'  ,lwcf  )
  call mpas_pool_get_array(diag_physics,'lwdnb' ,lwdnb )
  call mpas_pool_get_array(diag_physics,'lwdnbc',lwdnbc)
@@ -714,6 +720,9 @@
     swupb(i)  = swupb_p(i,j)
     swupt(i)  = swupt_p(i,j)
     gsw(i)    = gsw_p(i,j)
+
+    print *, "glw_p(i,j)",glw_p(i,j)
+    print *, "gsw_p(i,j)",gsw_p(i,j)
  enddo
 
  do k = kts,kte
@@ -928,6 +937,8 @@
             lwupb    = lwupb_p     , lwupbc     = lwupbc_p      , lwdnb     = lwdnb_p    , &
             lwdnbc   = lwdnbc_p    , xtime    = xtime_m      ,   xlong    = xlon_p      ,  &
             albedo   = sfc_albedo_p, coszr    = coszr_p      ,   rthratensw = rthratensw_p , &
+            swupb    = swupb_p     , swdnb    = swdnb_p      ,   swupt      = swupt_p    , &
+            swdnt    = swdnt_p     , gsw        = gsw_p      ,                             &
             ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde ,        &
             ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme ,        &
             its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte          &
