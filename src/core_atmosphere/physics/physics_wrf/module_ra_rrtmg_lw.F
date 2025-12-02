@@ -11696,8 +11696,8 @@ CONTAINS
       CHARACTER(300), TARGET :: model_loc;
       TYPE(ftorchmodel) :: model;
       INTEGER :: sty_res
-      REAL :: nn_input(660, 57, 21) = 0.0
-      REAL :: nn_output(660, 57, 6)
+      REAL :: nn_input(2040, 57, 21) = 0.0
+      REAL :: nn_output(2040, 57, 6)
       INTEGER(C_INT) :: use_gpu = 0
 
 !--- weighted mean pressure and temperature profiles from midlatitude summer (MLS),
