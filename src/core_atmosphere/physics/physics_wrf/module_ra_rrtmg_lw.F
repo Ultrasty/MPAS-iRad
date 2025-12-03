@@ -12481,6 +12481,13 @@ CONTAINS
 
       end do !end latitude loop.
 
+      ! Negative SW values are not allowed
+      where(rthratensw < 0.d0) rthratensw = 0.d0
+      where (swupt  < 0.d0) swupt  = 0.d0
+      where (swdnt  < 0.d0) swdnt  = 0.d0
+      where (swupb  < 0.d0) swupb  = 0.d0
+      where (swdnb  < 0.d0) swdnb  = 0.d0
+
    end subroutine rrtmg_lwrad
 
 !=================================================================================================================

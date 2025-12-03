@@ -721,8 +721,8 @@
     swupt(i)  = swupt_p(i,j)
     gsw(i)    = gsw_p(i,j)
 
-    print *, "glw_p(i,j)",glw_p(i,j)
-    print *, "gsw_p(i,j)",gsw_p(i,j)
+   !  print *, "glw_p(i,j)",glw_p(i,j)
+   !  print *, "gsw_p(i,j)",gsw_p(i,j)
  enddo
 
  do k = kts,kte
