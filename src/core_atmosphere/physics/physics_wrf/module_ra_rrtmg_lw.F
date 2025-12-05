@@ -11541,6 +11541,7 @@ CONTAINS
       its, ite, jts, jte, kts, kte &
       )
 
+      use mpi
       implicit none
 
 !=================================================================================================================
@@ -11589,6 +11590,10 @@ CONTAINS
       integer:: pcols, pver
       integer:: idx_rei
       integer:: i, j, k, kk, n
+
+            ! 添加文件变量
+      integer :: my_rank, ierr, lw_unit
+      character(len=100) :: lw_filename
 
       real:: ro, dz
       real:: corr
@@ -11707,6 +11712,13 @@ CONTAINS
          249.89, 246.67, 243.48, 240.25, 236.66, 233.86/
 
 !-----------------------------------------------------------------------------------------------------------------
+
+!--- 打开输出文件
+      call MPI_Comm_rank(MPI_COMM_WORLD, my_rank, ierr)
+      lw_unit = 7
+      write(lw_filename, '(A,I4.4,A)') 'radiation_lw_', my_rank, '.csv'
+      open(unit=lw_unit, file=trim(lw_filename), position='append', action='write')
+
 
 !--- all fields are ordered vertically from bottom to top (pressures are in mb):
       ncol = 1
@@ -12251,7 +12263,7 @@ CONTAINS
                ! 去掉最后一个逗号并打印表头
                csv_line = trim(csv_line)
                csv_line(len_trim(csv_line):len_trim(csv_line)) = ' '
-               print '(A)', trim(csv_line)
+               write(lw_unit,'(A)') trim(csv_line)
                
                first_call = .false.
             end if
@@ -12369,7 +12381,7 @@ CONTAINS
             ! 去掉最后一个逗号并打印
             csv_line = trim(csv_line)
             csv_line(len_trim(csv_line):len_trim(csv_line)) = ' '
-            print '(A)', trim(csv_line)
+            write(lw_unit,'(A)') trim(csv_line)
  
  
 
@@ -12465,6 +12477,8 @@ CONTAINS
          end do i_loop !end longitude loop.
 
       end do j_loop !end latitude loop.
+
+      close(lw_unit)
 
    end subroutine rrtmg_lwrad
 
