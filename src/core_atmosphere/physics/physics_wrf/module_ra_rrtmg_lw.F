@@ -11727,7 +11727,7 @@ CONTAINS
 !-----------------------------------------------------------------------------------------------------------------
 
       model_loc = "/public/home/qinbo/mpas-rad/v2-mpas-rad/mpas_dataprocess/" // &
-      "8_train/train-small-2/models/best_model_20251125_211020_cpu.pt" // &
+      "8_train/train-small-2/models/best_model_20251205_221855_cpu.pt" // &
       CHAR(0)
 !--- all fields are ordered vertically from bottom to top (pressures are in mb):
       ncol = 1
