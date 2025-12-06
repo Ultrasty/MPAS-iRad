@@ -10212,657 +10212,657 @@ CONTAINS
             coszrs = sin(xxlat) * sin(declin) + cos(xxlat) * cos(declin) * cos(hrang)
             coszr(i,j) = coszrs
 
-            if (coszrs.le.0.0) dorrsw = .false.
+            ! if (coszrs.le.0.0) dorrsw = .false.
 
-            if(dorrsw) then
+            ! if(dorrsw) then
 
-               !--- initialize local latitude:
-               lat = xlat(i,j)
+            !    !--- initialize local latitude:
+            !    lat = xlat(i,j)
 
-               !--- INITIALIZE COLUMN SOUNDING (the call to the short wave radiation code is done one column
-               !     at a time):
-               do k = kts, kte+1
-                  pw1d(k) = p8w(i,k,j) / 100.
-                  tw1d(k) = t8w(i,k,j)
-               enddo
+            !    !--- INITIALIZE COLUMN SOUNDING (the call to the short wave radiation code is done one column
+            !    !     at a time):
+            !    do k = kts, kte+1
+            !       pw1d(k) = p8w(i,k,j) / 100.
+            !       tw1d(k) = t8w(i,k,j)
+            !    enddo
 
-               do k = kts, kte
-                  p1d(k)      = p3d(i,k,j) / 100.
-                  dz1d(k)     = dz8w(i,k,j)
-                  t1d(k)      = t3d(i,k,j)
-                  qv1d(k)     = amax1(qv3d(i,k,j),1.e-12)
-                  o31d(k)     = 0.
-                  qc1d(k)     = 0.
-                  qr1d(k)     = 0.
-                  qi1d(k)     = 0.
-                  qs1d(k)     = 0.
-                  qg1d(k)     = 0.
-                  cldfra1d(k) = 0.
-                  if(present(o33d)) o31d(k) = o33d(i,k,j)
-               enddo
+            !    do k = kts, kte
+            !       p1d(k)      = p3d(i,k,j) / 100.
+            !       dz1d(k)     = dz8w(i,k,j)
+            !       t1d(k)      = t3d(i,k,j)
+            !       qv1d(k)     = amax1(qv3d(i,k,j),1.e-12)
+            !       o31d(k)     = 0.
+            !       qc1d(k)     = 0.
+            !       qr1d(k)     = 0.
+            !       qi1d(k)     = 0.
+            !       qs1d(k)     = 0.
+            !       qg1d(k)     = 0.
+            !       cldfra1d(k) = 0.
+            !       if(present(o33d)) o31d(k) = o33d(i,k,j)
+            !    enddo
 
-               !--- initialize the local arrays containing the different cloud water and ice condenstates:
-               if(icloud .gt. 0) then
-                  do k = kts,kte
-                     if(present(qc3d)) qc1d(k) = amax1(qc3d(i,k,j),0.)
-                     if(present(qr3d)) qr1d(k) = amax1(qr3d(i,k,j),0.)
-                     if(present(qi3d)) qi1d(k) = amax1(qi3d(i,k,j),0.)
-                     if(present(qs3d)) qs1d(k) = amax1(qs3d(i,k,j),0.)
-                     if((present(qc3d) .or. present(qi3d) .or. present(qs3d)) .and. present(cldfra3d)) &
-                        cldfra1d(k) = cldfra3d(i,k,j)
-                  enddo
-               endif
+            !    !--- initialize the local arrays containing the different cloud water and ice condenstates:
+            !    if(icloud .gt. 0) then
+            !       do k = kts,kte
+            !          if(present(qc3d)) qc1d(k) = amax1(qc3d(i,k,j),0.)
+            !          if(present(qr3d)) qr1d(k) = amax1(qr3d(i,k,j),0.)
+            !          if(present(qi3d)) qi1d(k) = amax1(qi3d(i,k,j),0.)
+            !          if(present(qs3d)) qs1d(k) = amax1(qs3d(i,k,j),0.)
+            !          if((present(qc3d) .or. present(qi3d) .or. present(qs3d)) .and. present(cldfra3d)) &
+            !             cldfra1d(k) = cldfra3d(i,k,j)
+            !       enddo
+            !    endif
 
-               !--- initialize the local radiative heating rate:
-               do k = kts, kte
-                  tten1d(k) = 0.
-               enddo
+            !    !--- initialize the local radiative heating rate:
+            !    do k = kts, kte
+            !       tten1d(k) = 0.
+            !    enddo
 
-               !--- add extra layer to include absorption between the top of the model and the top of the atmosphere:
-               nlay = (kte-kts+1) + 1
+            !    !--- add extra layer to include absorption between the top of the model and the top of the atmosphere:
+            !    nlay = (kte-kts+1) + 1
 
-               !--- initialize local arrays called in the calculation of the cloud optical properties and radiative
-               !    fluxes:
-               do n = 1, ncol
-                  do k = kts, kte
-                     reliq(ncol,k)  = 10.
-                     reice(ncol,k)  = 10.
-                     resnow(ncol,k) = 10.
-                     cliqwp(ncol,k) = 0.
-                     cicewp(ncol,k) = 0.
-                     csnowp(ncol,k) = 0.
-                  enddo
+            !    !--- initialize local arrays called in the calculation of the cloud optical properties and radiative
+            !    !    fluxes:
+            !    do n = 1, ncol
+            !       do k = kts, kte
+            !          reliq(ncol,k)  = 10.
+            !          reice(ncol,k)  = 10.
+            !          resnow(ncol,k) = 10.
+            !          cliqwp(ncol,k) = 0.
+            !          cicewp(ncol,k) = 0.
+            !          csnowp(ncol,k) = 0.
+            !       enddo
 
-                  do k = 1, nlay
-                     clwpth(n,k)    = 0.
-                     ciwpth(n,k)    = 0.
-                     cswpth(n,k)    = 0.
-                     rel(n,k)       = 0.
-                     rei(n,k)       = 0.
-                     res(n,k)       = 0.
-                     cldfrac(n,k)   = 0.
-                     relqmcl(n,k)   = 0.
-                     reicmcl(n,k)   = 0.
-                     resnmcl(n,k)   = 0.
-                     swuflx(n,k)    = 0.
-                     swuflxc(n,k)   = 0.
-                     swuflxcln(n,k) = 0.
-                     swdflx(n,k)    = 0.
-                     swdflxc(n,k)   = 0.
-                     swdflxcln(n,k) = 0.
-                     swhr(n,k)      = 0.
-                     swhrc(n,k)     = 0.
-                     taucld(1:nbndsw,n,k)  = 0.
-                     tauaer(n,k,1:nbndsw)  = 0.
-                     ssaaer(n,k,1:nbndsw)  = 0.
-                     asmaer(n,k,1:nbndsw)  = 0.
-                     cldfmcl(1:ngptsw,n,k) = 0.
-                     clwpmcl(1:ngptsw,n,k) = 0.
-                     ciwpmcl(1:ngptsw,n,k) = 0.
-                     cswpmcl(1:ngptsw,n,k) = 0.
-                     taucmcl(1:ngptsw,n,k) = 0.
-                  enddo
-                  do k = 1, nlay + 1
-                     sibvisdir(ncol,k) = 0.
-                     sibvisdif(ncol,k) = 0.
-                     sibnirdir(ncol,k) = 0.
-                     sibnirdif(ncol,k) = 0.
-                     swdkdir(n,k)      = 0.
-                     swdkdif(n,k)      = 0.
-                     swdkdirc(n,k)     = 0.
-                  enddo
-                  swuflx(n,nlay+1)    = 0.
-                  swuflxc(n,nlay+1)   = 0.
-                  swuflxcln(n,nlay+1) = 0.
-                  swdflx(n,nlay+1)    = 0.
-                  swdflxc(n,nlay+1)   = 0.
-                  swdflxcln(n,nlay+1) = 0.
-               enddo
+            !       do k = 1, nlay
+            !          clwpth(n,k)    = 0.
+            !          ciwpth(n,k)    = 0.
+            !          cswpth(n,k)    = 0.
+            !          rel(n,k)       = 0.
+            !          rei(n,k)       = 0.
+            !          res(n,k)       = 0.
+            !          cldfrac(n,k)   = 0.
+            !          relqmcl(n,k)   = 0.
+            !          reicmcl(n,k)   = 0.
+            !          resnmcl(n,k)   = 0.
+            !          swuflx(n,k)    = 0.
+            !          swuflxc(n,k)   = 0.
+            !          swuflxcln(n,k) = 0.
+            !          swdflx(n,k)    = 0.
+            !          swdflxc(n,k)   = 0.
+            !          swdflxcln(n,k) = 0.
+            !          swhr(n,k)      = 0.
+            !          swhrc(n,k)     = 0.
+            !          taucld(1:nbndsw,n,k)  = 0.
+            !          tauaer(n,k,1:nbndsw)  = 0.
+            !          ssaaer(n,k,1:nbndsw)  = 0.
+            !          asmaer(n,k,1:nbndsw)  = 0.
+            !          cldfmcl(1:ngptsw,n,k) = 0.
+            !          clwpmcl(1:ngptsw,n,k) = 0.
+            !          ciwpmcl(1:ngptsw,n,k) = 0.
+            !          cswpmcl(1:ngptsw,n,k) = 0.
+            !          taucmcl(1:ngptsw,n,k) = 0.
+            !       enddo
+            !       do k = 1, nlay + 1
+            !          sibvisdir(ncol,k) = 0.
+            !          sibvisdif(ncol,k) = 0.
+            !          sibnirdir(ncol,k) = 0.
+            !          sibnirdif(ncol,k) = 0.
+            !          swdkdir(n,k)      = 0.
+            !          swdkdif(n,k)      = 0.
+            !          swdkdirc(n,k)     = 0.
+            !       enddo
+            !       swuflx(n,nlay+1)    = 0.
+            !       swuflxc(n,nlay+1)   = 0.
+            !       swuflxcln(n,nlay+1) = 0.
+            !       swdflx(n,nlay+1)    = 0.
+            !       swdflxc(n,nlay+1)   = 0.
+            !       swdflxcln(n,nlay+1) = 0.
+            !    enddo
 
-               !--- initialization of aerosol optical properties:
-               do n = 1, ncol
-                  do k = 1, nlay
-                     do na = 1, naerec
-                        ecaer(n,k,na)   = 0.
-                     enddo
-                  enddo
-               enddo
+            !    !--- initialization of aerosol optical properties:
+            !    do n = 1, ncol
+            !       do k = 1, nlay
+            !          do na = 1, naerec
+            !             ecaer(n,k,na)   = 0.
+            !          enddo
+            !       enddo
+            !    enddo
 
-               !--- fill local arrays with input sounding. convert water vapor mass mixing ratio to
-               !    volume mixing ratio:
-               plev(ncol,1) = pw1d(1)
-               tlev(ncol,1) = tw1d(1)
-               tsfc(ncol)   = tsk(i,j)
-               do k = kts, kte
-                  plev(ncol,k+1)   = pw1d(k+1)
-                  tlev(ncol,k+1)   = tw1d(k+1)
-                  play(ncol,k)     = p1d(k)
-                  pdel(ncol,k)     = plev(ncol,k) - plev(ncol,k+1)
-                  tlay(ncol,k)     = t1d(k)
-                  h2ovmr(ncol,k)   = qv1d(k) * amdw
-                  co2vmr(ncol,k)   = co2
-                  o2vmr(ncol,k)    = o2
-                  ch4vmr(ncol,k)   = ch4
-                  n2ovmr(ncol,k)   = n2o
-               enddo
-               plev(ncol,kte+2)   = 1.0e-5
-               tlev(ncol,kte+2)   = tlev(ncol,kte+1) + 0.0
-               play(ncol,kte+1)   = 0.5 * plev(ncol,kte+1)
-               tlay(ncol,kte+1)   = tlev(ncol,kte+1) + 0.0
-               h2ovmr(ncol,kte+1) = h2ovmr(ncol,kte)
-               co2vmr(ncol,kte+1) = co2vmr(ncol,kte)
-               o2vmr(ncol,kte+1)  = o2vmr(ncol,kte)
-               ch4vmr(ncol,kte+1) = ch4vmr(ncol,kte)
-               n2ovmr(ncol,kte+1) = n2ovmr(ncol,kte)
+            !    !--- fill local arrays with input sounding. convert water vapor mass mixing ratio to
+            !    !    volume mixing ratio:
+            !    plev(ncol,1) = pw1d(1)
+            !    tlev(ncol,1) = tw1d(1)
+            !    tsfc(ncol)   = tsk(i,j)
+            !    do k = kts, kte
+            !       plev(ncol,k+1)   = pw1d(k+1)
+            !       tlev(ncol,k+1)   = tw1d(k+1)
+            !       play(ncol,k)     = p1d(k)
+            !       pdel(ncol,k)     = plev(ncol,k) - plev(ncol,k+1)
+            !       tlay(ncol,k)     = t1d(k)
+            !       h2ovmr(ncol,k)   = qv1d(k) * amdw
+            !       co2vmr(ncol,k)   = co2
+            !       o2vmr(ncol,k)    = o2
+            !       ch4vmr(ncol,k)   = ch4
+            !       n2ovmr(ncol,k)   = n2o
+            !    enddo
+            !    plev(ncol,kte+2)   = 1.0e-5
+            !    tlev(ncol,kte+2)   = tlev(ncol,kte+1) + 0.0
+            !    play(ncol,kte+1)   = 0.5 * plev(ncol,kte+1)
+            !    tlay(ncol,kte+1)   = tlev(ncol,kte+1) + 0.0
+            !    h2ovmr(ncol,kte+1) = h2ovmr(ncol,kte)
+            !    co2vmr(ncol,kte+1) = co2vmr(ncol,kte)
+            !    o2vmr(ncol,kte+1)  = o2vmr(ncol,kte)
+            !    ch4vmr(ncol,kte+1) = ch4vmr(ncol,kte)
+            !    n2ovmr(ncol,kte+1) = n2ovmr(ncol,kte)
 
-               !--- compute height of each layer mid-point from layer thickness needed for icl=4 (exponential) and
-               !    icld=5 (exponential-random) overlap. fill in height array above model top using dz1d from top
-               !    layer:
-               dzsum = 0.
-               do k = kts, kte
-                  hlay(ncol,k) = dzsum + 0.5*dz1d(k)
-                  dzsum = dzsum + dz1d(k)
-               enddo
-               hlay(ncol,kte+1) = dzsum + 0.5*dz1d(kte)
+            !    !--- compute height of each layer mid-point from layer thickness needed for icl=4 (exponential) and
+            !    !    icld=5 (exponential-random) overlap. fill in height array above model top using dz1d from top
+            !    !    layer:
+            !    dzsum = 0.
+            !    do k = kts, kte
+            !       hlay(ncol,k) = dzsum + 0.5*dz1d(k)
+            !       dzsum = dzsum + dz1d(k)
+            !    enddo
+            !    hlay(ncol,kte+1) = dzsum + 0.5*dz1d(kte)
 
-               !--- initialize the ozone volume mixing ratio:
-               call inirad(o3mmr,plev,kts,kte)
-               if(o3input .eq. 2) then
-                  do k = 1, noznlevels
-                     o3clim1d(k) = o3clim(i,k,j)
-                  enddo
-                  call vinterp_ozn(1,ncol,ncol,kte+1,play,pin,noznlevels,o3clim1d,o3mmr)
-                  do k = kts,kte+1
-                     o3vmr(ncol,k) = o3mmr(k)
-                  enddo
-               else
-                  do k = kts,kte+1
-                     o3vmr(ncol,k) = o3mmr(k)*amdo
-                  enddo
-               endif
+            !    !--- initialize the ozone volume mixing ratio:
+            !    call inirad(o3mmr,plev,kts,kte)
+            !    if(o3input .eq. 2) then
+            !       do k = 1, noznlevels
+            !          o3clim1d(k) = o3clim(i,k,j)
+            !       enddo
+            !       call vinterp_ozn(1,ncol,ncol,kte+1,play,pin,noznlevels,o3clim1d,o3mmr)
+            !       do k = kts,kte+1
+            !          o3vmr(ncol,k) = o3mmr(k)
+            !       enddo
+            !    else
+            !       do k = kts,kte+1
+            !          o3vmr(ncol,k) = o3mmr(k)*amdo
+            !       enddo
+            !    endif
 
-               !--- initialize the surface albedo:
-               asdir(ncol) = albedo(i,j)
-               asdif(ncol) = albedo(i,j)
-               aldir(ncol) = albedo(i,j)
-               aldif(ncol) = albedo(i,j)
+            !    !--- initialize the surface albedo:
+            !    asdir(ncol) = albedo(i,j)
+            !    asdif(ncol) = albedo(i,j)
+            !    aldir(ncol) = albedo(i,j)
+            !    aldif(ncol) = albedo(i,j)
 
-               !--- set solar constant:
-               scon = solcon
-               !--- set cosine of solar zenith angle:
-               coszen(ncol) = coszrs
-               !--- in MPAS, the solar constant is already provided with eccentricity adjustment, so do not do
-               !    this here:
-               dyofyr = 0
-               adjes  = 1.0
-
-
-
-               !--- CALCULATE CLOUD OPTICAL PROPERTIES:
-               if(inflgsw .gt. 0) then
-
-                  do k = kts, kte
-                     cldfrac(ncol,k) = cldfra1d(k)
-                  enddo
-
-                  !--- zero out cloud optical properties here (not used when passing physical properties to rrtmg_sw):
-                  do k = kts, kte
-                     do nb = 1, nbndsw
-                        taucld(nb,ncol,k) = 0.0
-                        ssacld(nb,ncol,k) = 1.0
-                        asmcld(nb,ncol,k) = 0.0
-                        fsfcld(nb,ncol,k) = 0.0
-                     enddo
-                  enddo
-
-                  pcols = ncol
-                  pver  = kte - kts + 1
-                  gravmks = g
-
-                  if(has_reqc .ne. 0) then
-                     !--- fill the effective radius for cloud water with that calculated in the Thompson cloud
-                     !    microphysics parameterization:
-                     inflgsw = 3
-                     do k = kts, kte
-                        reliq(ncol,k) = max(2.5,re_cloud(i,k,j)*1.e6)
-                        if(reliq(ncol,k).le.2.5 .and. cldfrac(ncol,k).gt.0. .and. &
-                           (xland(i,j)-1.5).gt.0.) then        !--- ocean.
-                           reliq(ncol,k) = 10.5
-                        elseif(reliq(ncol,k).le.2.5 .and. cldfrac(ncol,k).gt.0. .and. &
-                           (xland(i,j)-1.5).lt.0.) then        !--- land.
-                           reliq(ncol,k) = 7.5
-                        endif
-                     enddo
-
-                  else
-
-                     !---  calculate the effective radius for cloud water in layers below the model top. we added the
-                     !     dimensions pcols, pver so that the calls to subroutines relcalc and reicalc remain the same
-                     !     as in WRF although the two dimensions are duplicate and not needed inside the subroutines:
-                     landfrac(ncol) = 2.-xland(i,j)
-                     landm(ncol)    = landfrac(ncol)
-                     snowh(ncol)    = 0.001*snow(i,j)
-                     icefrac(ncol)  = xice(i,j)
-
-                     call relcalc(ncol,pcols,pver,tlay,landfrac,landm,icefrac,reliq,snowh)
-                  endif
-
-                  if(has_reqi .ne. 0) then
-                     !--- fill the effective radius for cloud ice with that calculated in the Thompson cloud
-                     !    microphysics parameterization:
-                     inflgsw  = 4
-                     iceflgsw = 4
-                     do k = kts, kte
-                        reice(ncol,k) = max(5.,re_ice(i,k,j)*1.e6)
-                        if(reice(ncol,k).le.5. .and. cldfrac(ncol,k).gt.0.) then
-                           idx_rei = int(t3d(i,k,j)-179.)
-                           idx_rei = min(max(idx_rei,1),75)
-                           corr = t3d(i,k,j) - int(t3d(i,k,j))
-                           reice(ncol,k) = retab(idx_rei)*(1.-corr) + retab(idx_rei+1)*corr
-                           reice(ncol,k) = max(reice(ncol,k),5.0)
-                        endif
-                     enddo
-
-                  else
-
-                     !--- calculate the effective radius for cloud ice in layers below the model top, following
-                     !    Kristjansson and Mitchell. limit upper bound of reice for Fu ice parameterization and
-                     !    convert effective radius to generalized effective size (*1.0315; Fu, 1996):
-
-                     call reicalc(ncol,pcols,pver,tlay,reice)
-
-                     if(iceflgsw .eq. 3) then
-                        do k = kts, kte
-                           reice(ncol,k) = reice(ncol,k) * 1.0315
-                           reice(ncol,k) = min(140.0,reice(ncol,k))
-                        enddo
-                     endif
-                  endif
-
-                  if(has_reqs .ne. 0) then
-                     !--- fill the effective radius for snow with that calculated in the Thompson cloud
-                     !    microphysics parameterization:
-                     inflgsw  = 5
-                     iceflgsw = 5
-                     do k = kts, kte
-                        resnow(ncol,k) = max(10.,re_snow(i,k,j)*1.e6)
-                     enddo
-                  else
-                     do k = kts, kte
-                        resnow(ncol,k) = 10.
-                     enddo
-                  endif
-
-                  !--- calculate the cloud liquid water path in units of g/m2 below the model top:
-                  do k = kts, kte
-                     gliqwp = qc1d(k) * pdel(ncol,k)*100.0 / gravmks * 1000.0              !grid box liquid water path.
-                     cliqwp(ncol,k) = gliqwp / max(0.01,cldfrac(ncol,k))                   !in-cloud liquid water path.
-                  enddo
-
-                  !--- calculate the cloud ice path in units of g/m2 below the model top:
-                  if(iceflgsw .eq. 3)then
-                     do k = kts, kte
-                        gicewp = (qi1d(k)+qs1d(k)) * pdel(ncol,k)*100.0 / gravmks * 1000.0 !grid box ice water path.
-                        cicewp(ncol,k) = gicewp / max(0.01,cldfrac(ncol,k))                !in-cloud ice water path.
-                     enddo
-                  elseif(iceflgsw .ge. 4) then
-                     do k = kts, kte
-                        gicewp = qi1d(k) * pdel(ncol,k)*100.0 / gravmks * 1000.0           !grid box ice water path.
-                        cicewp(ncol,k) = gicewp / max(0.01,cldfrac(ncol,k))                !in-cloud ice water path.
-                     enddo
-                  endif
-
-                  !--- calculate the snow path in units of g/m2 below the model top:
-                  if(iceflgsw.eq.5)then
-                     do k = kts, kte
-                        snow_mass_factor = 1.0
-                        if(resnow(ncol,k) .gt. 130.)then
-                           snow_mass_factor = (130.0/resnow(ncol,k))*(130.0/resnow(ncol,k))
-                           resnow(ncol,k)   = 130.0
-                        endif
-                        gsnowp = qs1d(k) * pdel(ncol,k)*100.0 / gravmks * 1000.0           !grid box snow path.
-                        csnowp(ncol,k) = snow_mass_factor * gsnowp / max(0.01,cldfrac(ncol,k))
-                     enddo
-                  endif
-
-                  !--- set the cloud physical property between the model top and the top of the atmosphere.
-                  !    do not allow clouds between the model top and the top of the atmosphere:
-                  do k = kts, kte
-                     clwpth(ncol,k) = cliqwp(ncol,k)
-                     ciwpth(ncol,k) = cicewp(ncol,k)
-                     cswpth(ncol,k) = csnowp(ncol,k)
-                     rel(ncol,k) = reliq(ncol,k)
-                     rei(ncol,k) = reice(ncol,k)
-                     res(ncol,k) = resnow(ncol,k)
-                  enddo
-                  !---- no clouds are allowed in the extra layer from model top to TOA:
-                  clwpth(ncol,kte+1)  = 0.
-                  ciwpth(ncol,kte+1)  = 0.
-                  cswpth(ncol,kte+1)  = 0.
-                  rel(ncol,kte+1)     = 10.
-                  rei(ncol,kte+1)     = 10.
-                  res(ncol,kte+1)     = 10.
-                  cldfrac(ncol,kte+1) = 0.
-                  do nb = 1, nbndsw
-                     taucld(nb,ncol,kte+1) = 0.
-                     ssacld(nb,ncol,kte+1) = 1.
-                     asmcld(nb,ncol,kte+1) = 0.
-                     fsfcld(nb,ncol,kte+1) = 0.
-                  enddo
-
-               endif
-
-               !--- sub-column generator for McICA:
-               iplon = 1
-               irng  = 0
-               permuteseed = 1
-
-               call mcica_subcol_sw &
-                  (iplon   , ncol    , nlay    , icld    , permuteseed , irng    , play    , &
-                  cldfrac , ciwpth  , clwpth  , cswpth  , rei         , rel     , res     , &
-                  taucld  , ssacld  , asmcld  , fsfcld  , hlay        , idcor   , julday  , &
-                  lat     , cldfmcl , ciwpmcl , clwpmcl , cswpmcl     , reicmcl , relqmcl , &
-                  resnmcl , taucmcl , ssacmcl , asmcmcl , fsfcmcl)
-
-               !--- initialization of aerosol optical properties:
-               if(present(tauaer3d) .and. present(ssaaer3d) .and. present(asyaer3d)) then
-                  do nb = 1, nbndsw
-                     do k = kts, kte
-                        tauaer(ncol,k,nb) = tauaer3d(i,k,j,nb)
-                        ssaaer(ncol,k,nb) = ssaaer3d(i,k,j,nb)
-                        asmaer(ncol,k,nb) = asyaer3d(i,k,j,nb)
-                     enddo
-                     k = kte+1
-                     tauaer(ncol,k,nb) = 0.
-                     ssaaer(ncol,k,nb) = 1.
-                     asmaer(ncol,k,nb) = 0.
-                  enddo
-               else
-                  do nb = 1, nbndsw
-                     do k = kts, kte+1
-                        tauaer(ncol,k,nb) = 0.
-                        ssaaer(ncol,k,nb) = 1.
-                        asmaer(ncol,k,nb) = 0.
-                     enddo
-                  enddo
-               endif
-
-               do na = 1, naerec
-                  do k = kts, kte+1
-                     ecaer(ncol,k,na) = 0.
-                  enddo
-               enddo
+            !    !--- set solar constant:
+            !    scon = solcon
+            !    !--- set cosine of solar zenith angle:
+            !    coszen(ncol) = coszrs
+            !    !--- in MPAS, the solar constant is already provided with eccentricity adjustment, so do not do
+            !    !    this here:
+            !    dyofyr = 0
+            !    adjes  = 1.0
 
 
-               !--- 在CALL TO THE RRTMG SHORT WAVE RADIATION MODEL之前添加：
 
-               ! if (first_call) then
-               !    ! 打印CSV表头 - 先写时间和位置信息
-               !    write(csv_line, '(A)') 'xtime,gmt,julday,xlat,xlong,i,j,ncol,nlay,icld,'// &
-               !         'tsfc,asdir,asdif,aldir,aldif,coszen,scon,adjes,dyofyr,inflgsw,iceflgsw,liqflgsw,'
+            !    !--- CALCULATE CLOUD OPTICAL PROPERTIES:
+            !    if(inflgsw .gt. 0) then
+
+            !       do k = kts, kte
+            !          cldfrac(ncol,k) = cldfra1d(k)
+            !       enddo
+
+            !       !--- zero out cloud optical properties here (not used when passing physical properties to rrtmg_sw):
+            !       do k = kts, kte
+            !          do nb = 1, nbndsw
+            !             taucld(nb,ncol,k) = 0.0
+            !             ssacld(nb,ncol,k) = 1.0
+            !             asmcld(nb,ncol,k) = 0.0
+            !             fsfcld(nb,ncol,k) = 0.0
+            !          enddo
+            !       enddo
+
+            !       pcols = ncol
+            !       pver  = kte - kts + 1
+            !       gravmks = g
+
+            !       if(has_reqc .ne. 0) then
+            !          !--- fill the effective radius for cloud water with that calculated in the Thompson cloud
+            !          !    microphysics parameterization:
+            !          inflgsw = 3
+            !          do k = kts, kte
+            !             reliq(ncol,k) = max(2.5,re_cloud(i,k,j)*1.e6)
+            !             if(reliq(ncol,k).le.2.5 .and. cldfrac(ncol,k).gt.0. .and. &
+            !                (xland(i,j)-1.5).gt.0.) then        !--- ocean.
+            !                reliq(ncol,k) = 10.5
+            !             elseif(reliq(ncol,k).le.2.5 .and. cldfrac(ncol,k).gt.0. .and. &
+            !                (xland(i,j)-1.5).lt.0.) then        !--- land.
+            !                reliq(ncol,k) = 7.5
+            !             endif
+            !          enddo
+
+            !       else
+
+            !          !---  calculate the effective radius for cloud water in layers below the model top. we added the
+            !          !     dimensions pcols, pver so that the calls to subroutines relcalc and reicalc remain the same
+            !          !     as in WRF although the two dimensions are duplicate and not needed inside the subroutines:
+            !          landfrac(ncol) = 2.-xland(i,j)
+            !          landm(ncol)    = landfrac(ncol)
+            !          snowh(ncol)    = 0.001*snow(i,j)
+            !          icefrac(ncol)  = xice(i,j)
+
+            !          call relcalc(ncol,pcols,pver,tlay,landfrac,landm,icefrac,reliq,snowh)
+            !       endif
+
+            !       if(has_reqi .ne. 0) then
+            !          !--- fill the effective radius for cloud ice with that calculated in the Thompson cloud
+            !          !    microphysics parameterization:
+            !          inflgsw  = 4
+            !          iceflgsw = 4
+            !          do k = kts, kte
+            !             reice(ncol,k) = max(5.,re_ice(i,k,j)*1.e6)
+            !             if(reice(ncol,k).le.5. .and. cldfrac(ncol,k).gt.0.) then
+            !                idx_rei = int(t3d(i,k,j)-179.)
+            !                idx_rei = min(max(idx_rei,1),75)
+            !                corr = t3d(i,k,j) - int(t3d(i,k,j))
+            !                reice(ncol,k) = retab(idx_rei)*(1.-corr) + retab(idx_rei+1)*corr
+            !                reice(ncol,k) = max(reice(ncol,k),5.0)
+            !             endif
+            !          enddo
+
+            !       else
+
+            !          !--- calculate the effective radius for cloud ice in layers below the model top, following
+            !          !    Kristjansson and Mitchell. limit upper bound of reice for Fu ice parameterization and
+            !          !    convert effective radius to generalized effective size (*1.0315; Fu, 1996):
+
+            !          call reicalc(ncol,pcols,pver,tlay,reice)
+
+            !          if(iceflgsw .eq. 3) then
+            !             do k = kts, kte
+            !                reice(ncol,k) = reice(ncol,k) * 1.0315
+            !                reice(ncol,k) = min(140.0,reice(ncol,k))
+            !             enddo
+            !          endif
+            !       endif
+
+            !       if(has_reqs .ne. 0) then
+            !          !--- fill the effective radius for snow with that calculated in the Thompson cloud
+            !          !    microphysics parameterization:
+            !          inflgsw  = 5
+            !          iceflgsw = 5
+            !          do k = kts, kte
+            !             resnow(ncol,k) = max(10.,re_snow(i,k,j)*1.e6)
+            !          enddo
+            !       else
+            !          do k = kts, kte
+            !             resnow(ncol,k) = 10.
+            !          enddo
+            !       endif
+
+            !       !--- calculate the cloud liquid water path in units of g/m2 below the model top:
+            !       do k = kts, kte
+            !          gliqwp = qc1d(k) * pdel(ncol,k)*100.0 / gravmks * 1000.0              !grid box liquid water path.
+            !          cliqwp(ncol,k) = gliqwp / max(0.01,cldfrac(ncol,k))                   !in-cloud liquid water path.
+            !       enddo
+
+            !       !--- calculate the cloud ice path in units of g/m2 below the model top:
+            !       if(iceflgsw .eq. 3)then
+            !          do k = kts, kte
+            !             gicewp = (qi1d(k)+qs1d(k)) * pdel(ncol,k)*100.0 / gravmks * 1000.0 !grid box ice water path.
+            !             cicewp(ncol,k) = gicewp / max(0.01,cldfrac(ncol,k))                !in-cloud ice water path.
+            !          enddo
+            !       elseif(iceflgsw .ge. 4) then
+            !          do k = kts, kte
+            !             gicewp = qi1d(k) * pdel(ncol,k)*100.0 / gravmks * 1000.0           !grid box ice water path.
+            !             cicewp(ncol,k) = gicewp / max(0.01,cldfrac(ncol,k))                !in-cloud ice water path.
+            !          enddo
+            !       endif
+
+            !       !--- calculate the snow path in units of g/m2 below the model top:
+            !       if(iceflgsw.eq.5)then
+            !          do k = kts, kte
+            !             snow_mass_factor = 1.0
+            !             if(resnow(ncol,k) .gt. 130.)then
+            !                snow_mass_factor = (130.0/resnow(ncol,k))*(130.0/resnow(ncol,k))
+            !                resnow(ncol,k)   = 130.0
+            !             endif
+            !             gsnowp = qs1d(k) * pdel(ncol,k)*100.0 / gravmks * 1000.0           !grid box snow path.
+            !             csnowp(ncol,k) = snow_mass_factor * gsnowp / max(0.01,cldfrac(ncol,k))
+            !          enddo
+            !       endif
+
+            !       !--- set the cloud physical property between the model top and the top of the atmosphere.
+            !       !    do not allow clouds between the model top and the top of the atmosphere:
+            !       do k = kts, kte
+            !          clwpth(ncol,k) = cliqwp(ncol,k)
+            !          ciwpth(ncol,k) = cicewp(ncol,k)
+            !          cswpth(ncol,k) = csnowp(ncol,k)
+            !          rel(ncol,k) = reliq(ncol,k)
+            !          rei(ncol,k) = reice(ncol,k)
+            !          res(ncol,k) = resnow(ncol,k)
+            !       enddo
+            !       !---- no clouds are allowed in the extra layer from model top to TOA:
+            !       clwpth(ncol,kte+1)  = 0.
+            !       ciwpth(ncol,kte+1)  = 0.
+            !       cswpth(ncol,kte+1)  = 0.
+            !       rel(ncol,kte+1)     = 10.
+            !       rei(ncol,kte+1)     = 10.
+            !       res(ncol,kte+1)     = 10.
+            !       cldfrac(ncol,kte+1) = 0.
+            !       do nb = 1, nbndsw
+            !          taucld(nb,ncol,kte+1) = 0.
+            !          ssacld(nb,ncol,kte+1) = 1.
+            !          asmcld(nb,ncol,kte+1) = 0.
+            !          fsfcld(nb,ncol,kte+1) = 0.
+            !       enddo
+
+            !    endif
+
+            !    !--- sub-column generator for McICA:
+            !    iplon = 1
+            !    irng  = 0
+            !    permuteseed = 1
+
+            !    call mcica_subcol_sw &
+            !       (iplon   , ncol    , nlay    , icld    , permuteseed , irng    , play    , &
+            !       cldfrac , ciwpth  , clwpth  , cswpth  , rei         , rel     , res     , &
+            !       taucld  , ssacld  , asmcld  , fsfcld  , hlay        , idcor   , julday  , &
+            !       lat     , cldfmcl , ciwpmcl , clwpmcl , cswpmcl     , reicmcl , relqmcl , &
+            !       resnmcl , taucmcl , ssacmcl , asmcmcl , fsfcmcl)
+
+            !    !--- initialization of aerosol optical properties:
+            !    if(present(tauaer3d) .and. present(ssaaer3d) .and. present(asyaer3d)) then
+            !       do nb = 1, nbndsw
+            !          do k = kts, kte
+            !             tauaer(ncol,k,nb) = tauaer3d(i,k,j,nb)
+            !             ssaaer(ncol,k,nb) = ssaaer3d(i,k,j,nb)
+            !             asmaer(ncol,k,nb) = asyaer3d(i,k,j,nb)
+            !          enddo
+            !          k = kte+1
+            !          tauaer(ncol,k,nb) = 0.
+            !          ssaaer(ncol,k,nb) = 1.
+            !          asmaer(ncol,k,nb) = 0.
+            !       enddo
+            !    else
+            !       do nb = 1, nbndsw
+            !          do k = kts, kte+1
+            !             tauaer(ncol,k,nb) = 0.
+            !             ssaaer(ncol,k,nb) = 1.
+            !             asmaer(ncol,k,nb) = 0.
+            !          enddo
+            !       enddo
+            !    endif
+
+            !    do na = 1, naerec
+            !       do k = kts, kte+1
+            !          ecaer(ncol,k,na) = 0.
+            !       enddo
+            !    enddo
+
+
+            !    !--- 在CALL TO THE RRTMG SHORT WAVE RADIATION MODEL之前添加：
+
+            !    ! if (first_call) then
+            !    !    ! 打印CSV表头 - 先写时间和位置信息
+            !    !    write(csv_line, '(A)') 'xtime,gmt,julday,xlat,xlong,i,j,ncol,nlay,icld,'// &
+            !    !         'tsfc,asdir,asdif,aldir,aldif,coszen,scon,adjes,dyofyr,inflgsw,iceflgsw,liqflgsw,'
                   
-               !    ! 添加垂直分层变量的表头
-               !    do csv_k = kts, kte+1
-               !       write(temp_str, '(A,I0,A)') 'play_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
-               !    do csv_k = kts, kte+2
-               !       write(temp_str, '(A,I0,A)') 'plev_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
-               !    do csv_k = kts, kte+1
-               !       write(temp_str, '(A,I0,A)') 'tlay_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
-               !    do csv_k = kts, kte+2
-               !       write(temp_str, '(A,I0,A)') 'tlev_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
-               !    do csv_k = kts, kte+1
-               !       write(temp_str, '(A,I0,A)') 'h2ovmr_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
-               !    do csv_k = kts, kte+1
-               !       write(temp_str, '(A,I0,A)') 'o3vmr_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
-               !    do csv_k = kts, kte+1
-               !       write(temp_str, '(A,I0,A)') 'co2vmr_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
-               !    do csv_k = kts, kte+1
-               !       write(temp_str, '(A,I0,A)') 'ch4vmr_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
-               !    do csv_k = kts, kte+1
-               !       write(temp_str, '(A,I0,A)') 'n2ovmr_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
-               !    do csv_k = kts, kte+1
-               !       write(temp_str, '(A,I0,A)') 'o2vmr_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
-               !    do csv_k = kts, kte+1
-               !       write(temp_str, '(A,I0,A)') 'cldfrac_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
-               !    do csv_k = kts, kte+1
-               !       write(temp_str, '(A,I0,A)') 'clwpth_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
-               !    do csv_k = kts, kte+1
-               !       write(temp_str, '(A,I0,A)') 'ciwpth_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
-               !    do csv_k = kts, kte+1
-               !       write(temp_str, '(A,I0,A)') 'cswpth_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
-               !    do csv_k = kts, kte+1
-               !       write(temp_str, '(A,I0,A)') 'rel_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
-               !    do csv_k = kts, kte+1
-               !       write(temp_str, '(A,I0,A)') 'rei_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
-               !    do csv_k = kts, kte+1
-               !       write(temp_str, '(A,I0,A)') 'res_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
+            !    !    ! 添加垂直分层变量的表头
+            !    !    do csv_k = kts, kte+1
+            !    !       write(temp_str, '(A,I0,A)') 'play_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
+            !    !    do csv_k = kts, kte+2
+            !    !       write(temp_str, '(A,I0,A)') 'plev_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
+            !    !    do csv_k = kts, kte+1
+            !    !       write(temp_str, '(A,I0,A)') 'tlay_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
+            !    !    do csv_k = kts, kte+2
+            !    !       write(temp_str, '(A,I0,A)') 'tlev_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
+            !    !    do csv_k = kts, kte+1
+            !    !       write(temp_str, '(A,I0,A)') 'h2ovmr_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
+            !    !    do csv_k = kts, kte+1
+            !    !       write(temp_str, '(A,I0,A)') 'o3vmr_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
+            !    !    do csv_k = kts, kte+1
+            !    !       write(temp_str, '(A,I0,A)') 'co2vmr_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
+            !    !    do csv_k = kts, kte+1
+            !    !       write(temp_str, '(A,I0,A)') 'ch4vmr_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
+            !    !    do csv_k = kts, kte+1
+            !    !       write(temp_str, '(A,I0,A)') 'n2ovmr_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
+            !    !    do csv_k = kts, kte+1
+            !    !       write(temp_str, '(A,I0,A)') 'o2vmr_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
+            !    !    do csv_k = kts, kte+1
+            !    !       write(temp_str, '(A,I0,A)') 'cldfrac_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
+            !    !    do csv_k = kts, kte+1
+            !    !       write(temp_str, '(A,I0,A)') 'clwpth_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
+            !    !    do csv_k = kts, kte+1
+            !    !       write(temp_str, '(A,I0,A)') 'ciwpth_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
+            !    !    do csv_k = kts, kte+1
+            !    !       write(temp_str, '(A,I0,A)') 'cswpth_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
+            !    !    do csv_k = kts, kte+1
+            !    !       write(temp_str, '(A,I0,A)') 'rel_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
+            !    !    do csv_k = kts, kte+1
+            !    !       write(temp_str, '(A,I0,A)') 'rei_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
+            !    !    do csv_k = kts, kte+1
+            !    !       write(temp_str, '(A,I0,A)') 'res_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
                   
-               !    ! 添加输出变量表头
-               !    do csv_k = kts, kte+2
-               !       write(temp_str, '(A,I0,A)') 'swuflx_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
-               !    do csv_k = kts, kte+2
-               !       write(temp_str, '(A,I0,A)') 'swdflx_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
-               !    do csv_k = kts, kte+1
-               !       write(temp_str, '(A,I0,A)') 'swhr_', csv_k, ','
-               !       csv_line = trim(csv_line) // trim(temp_str)
-               !    end do
+            !    !    ! 添加输出变量表头
+            !    !    do csv_k = kts, kte+2
+            !    !       write(temp_str, '(A,I0,A)') 'swuflx_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
+            !    !    do csv_k = kts, kte+2
+            !    !       write(temp_str, '(A,I0,A)') 'swdflx_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
+            !    !    do csv_k = kts, kte+1
+            !    !       write(temp_str, '(A,I0,A)') 'swhr_', csv_k, ','
+            !    !       csv_line = trim(csv_line) // trim(temp_str)
+            !    !    end do
                   
-               !    ! 去掉最后一个逗号并打印表头
-               !    csv_line = trim(csv_line)
-               !    csv_line(len_trim(csv_line):len_trim(csv_line)) = ' '
-               !    write(0,'(A)') trim(csv_line)
+            !    !    ! 去掉最后一个逗号并打印表头
+            !    !    csv_line = trim(csv_line)
+            !    !    csv_line(len_trim(csv_line):len_trim(csv_line)) = ' '
+            !    !    write(0,'(A)') trim(csv_line)
                   
-               !    first_call = .false.
-               ! end if
+            !    !    first_call = .false.
+            !    ! end if
 
 
-               !--- CALL TO THE RRTMG SHORT WAVE RADIATION MODEL:
-               ! call rrtmg_sw &
-               !    (ncol      , nlay      , icld      , play      , plev      , tlay      , &
-               !    tlev      , tsfc      , h2ovmr    , o3vmr     , co2vmr    , ch4vmr    , &
-               !    n2ovmr    , o2vmr     , asdir     , asdif     , aldir     , aldif     , &
-               !    coszen    , adjes     , dyofyr    , scon      , inflgsw   , iceflgsw  , &
-               !    liqflgsw  , cldfmcl   , taucmcl   , ssacmcl   , asmcmcl   , fsfcmcl   , &
-               !    ciwpmcl   , clwpmcl   , cswpmcl   , reicmcl   , relqmcl   , resnmcl   , &
-               !    tauaer    , ssaaer    , asmaer    , ecaer     , swuflx    , swdflx    , &
-               !    swhr      , swuflxc   , swdflxc   , swhrc     , swuflxcln , swdflxcln , &
-               !    aer_opt   , sibvisdir , sibvisdif , sibnirdir , sibnirdif , swdkdir   , &
-               !    swdkdif   , swdkdirc  , calc_clean_atm_diag)
+            !    !--- CALL TO THE RRTMG SHORT WAVE RADIATION MODEL:
+            !    ! call rrtmg_sw &
+            !    !    (ncol      , nlay      , icld      , play      , plev      , tlay      , &
+            !    !    tlev      , tsfc      , h2ovmr    , o3vmr     , co2vmr    , ch4vmr    , &
+            !    !    n2ovmr    , o2vmr     , asdir     , asdif     , aldir     , aldif     , &
+            !    !    coszen    , adjes     , dyofyr    , scon      , inflgsw   , iceflgsw  , &
+            !    !    liqflgsw  , cldfmcl   , taucmcl   , ssacmcl   , asmcmcl   , fsfcmcl   , &
+            !    !    ciwpmcl   , clwpmcl   , cswpmcl   , reicmcl   , relqmcl   , resnmcl   , &
+            !    !    tauaer    , ssaaer    , asmaer    , ecaer     , swuflx    , swdflx    , &
+            !    !    swhr      , swuflxc   , swdflxc   , swhrc     , swuflxcln , swdflxcln , &
+            !    !    aer_opt   , sibvisdir , sibvisdif , sibnirdir , sibnirdif , swdkdir   , &
+            !    !    swdkdif   , swdkdirc  , calc_clean_atm_diag)
 
 
-               ! !--- 在CALL之后打印数据：
+            !    ! !--- 在CALL之后打印数据：
           
-               ! ! 打印数据行 - 确保包含所有关键输入变量
-               ! write(csv_line, '(E15.7,A,E15.7,A,I0,A,E15.7,A,E15.7,A,I0,A,I0,A,I0,A,I0,A,I0,A,'// &
-               ! 'E15.7,A,E15.7,A,E15.7,A,E15.7,A,E15.7,A,E15.7,A,E15.7,A,E15.7,A,I0,A,I0,A,I0,A,I0,A)') &
-               ! xtime, ',', gmt, ',', julday, ',', xlat(i,j), ',', xlong(i,j), ',', &
-               ! i, ',', j, ',', ncol, ',', nlay, ',', icld, ',', &
-               ! tsfc(1), ',', asdir(1), ',', asdif(1), ',', aldir(1), ',', aldif(1), ',', &
-               ! coszen(1), ',', scon, ',', adjes, ',', dyofyr, ',', &
-               ! inflgsw, ',', iceflgsw, ',', liqflgsw, ','
+            !    ! ! 打印数据行 - 确保包含所有关键输入变量
+            !    ! write(csv_line, '(E15.7,A,E15.7,A,I0,A,E15.7,A,E15.7,A,I0,A,I0,A,I0,A,I0,A,I0,A,'// &
+            !    ! 'E15.7,A,E15.7,A,E15.7,A,E15.7,A,E15.7,A,E15.7,A,E15.7,A,E15.7,A,I0,A,I0,A,I0,A,I0,A)') &
+            !    ! xtime, ',', gmt, ',', julday, ',', xlat(i,j), ',', xlong(i,j), ',', &
+            !    ! i, ',', j, ',', ncol, ',', nlay, ',', icld, ',', &
+            !    ! tsfc(1), ',', asdir(1), ',', asdif(1), ',', aldir(1), ',', aldif(1), ',', &
+            !    ! coszen(1), ',', scon, ',', adjes, ',', dyofyr, ',', &
+            !    ! inflgsw, ',', iceflgsw, ',', liqflgsw, ','
      
-               ! ! 写入垂直分层的输入变量
-               ! do csv_k = kts, kte+1
-               !    write(temp_str, '(E15.7,A)') play(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
-               ! do csv_k = kts, kte+2
-               !    write(temp_str, '(E15.7,A)') plev(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
-               ! do csv_k = kts, kte+1
-               !    write(temp_str, '(E15.7,A)') tlay(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
-               ! do csv_k = kts, kte+2
-               !    write(temp_str, '(E15.7,A)') tlev(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
-               ! do csv_k = kts, kte+1
-               !    write(temp_str, '(E15.7,A)') h2ovmr(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
-               ! do csv_k = kts, kte+1
-               !    write(temp_str, '(E15.7,A)') o3vmr(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
-               ! do csv_k = kts, kte+1
-               !    write(temp_str, '(E15.7,A)') co2vmr(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
-               ! do csv_k = kts, kte+1
-               !    write(temp_str, '(E15.7,A)') ch4vmr(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
-               ! do csv_k = kts, kte+1
-               !    write(temp_str, '(E15.7,A)') n2ovmr(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
-               ! do csv_k = kts, kte+1
-               !    write(temp_str, '(E15.7,A)') o2vmr(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
-               ! do csv_k = kts, kte+1
-               !    write(temp_str, '(E15.7,A)') cldfrac(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
-               ! do csv_k = kts, kte+1
-               !    write(temp_str, '(E15.7,A)') clwpth(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
-               ! do csv_k = kts, kte+1
-               !    write(temp_str, '(E15.7,A)') ciwpth(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
-               ! do csv_k = kts, kte+1
-               !    write(temp_str, '(E15.7,A)') cswpth(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
-               ! do csv_k = kts, kte+1
-               !    write(temp_str, '(E15.7,A)') rel(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
-               ! do csv_k = kts, kte+1
-               !    write(temp_str, '(E15.7,A)') rei(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
-               ! do csv_k = kts, kte+1
-               !    write(temp_str, '(E15.7,A)') res(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
+            !    ! ! 写入垂直分层的输入变量
+            !    ! do csv_k = kts, kte+1
+            !    !    write(temp_str, '(E15.7,A)') play(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
+            !    ! do csv_k = kts, kte+2
+            !    !    write(temp_str, '(E15.7,A)') plev(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
+            !    ! do csv_k = kts, kte+1
+            !    !    write(temp_str, '(E15.7,A)') tlay(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
+            !    ! do csv_k = kts, kte+2
+            !    !    write(temp_str, '(E15.7,A)') tlev(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
+            !    ! do csv_k = kts, kte+1
+            !    !    write(temp_str, '(E15.7,A)') h2ovmr(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
+            !    ! do csv_k = kts, kte+1
+            !    !    write(temp_str, '(E15.7,A)') o3vmr(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
+            !    ! do csv_k = kts, kte+1
+            !    !    write(temp_str, '(E15.7,A)') co2vmr(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
+            !    ! do csv_k = kts, kte+1
+            !    !    write(temp_str, '(E15.7,A)') ch4vmr(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
+            !    ! do csv_k = kts, kte+1
+            !    !    write(temp_str, '(E15.7,A)') n2ovmr(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
+            !    ! do csv_k = kts, kte+1
+            !    !    write(temp_str, '(E15.7,A)') o2vmr(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
+            !    ! do csv_k = kts, kte+1
+            !    !    write(temp_str, '(E15.7,A)') cldfrac(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
+            !    ! do csv_k = kts, kte+1
+            !    !    write(temp_str, '(E15.7,A)') clwpth(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
+            !    ! do csv_k = kts, kte+1
+            !    !    write(temp_str, '(E15.7,A)') ciwpth(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
+            !    ! do csv_k = kts, kte+1
+            !    !    write(temp_str, '(E15.7,A)') cswpth(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
+            !    ! do csv_k = kts, kte+1
+            !    !    write(temp_str, '(E15.7,A)') rel(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
+            !    ! do csv_k = kts, kte+1
+            !    !    write(temp_str, '(E15.7,A)') rei(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
+            !    ! do csv_k = kts, kte+1
+            !    !    write(temp_str, '(E15.7,A)') res(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
                
-               ! ! 写入垂直分层的输出变量
-               ! do csv_k = kts, kte+2
-               !    write(temp_str, '(E15.7,A)') swuflx(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
-               ! do csv_k = kts, kte+2
-               !    write(temp_str, '(E15.7,A)') swdflx(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
-               ! do csv_k = kts, kte+1
-               !    write(temp_str, '(E15.7,A)') swhr(1,csv_k), ','
-               !    csv_line = trim(csv_line) // trim(temp_str)
-               ! end do
+            !    ! ! 写入垂直分层的输出变量
+            !    ! do csv_k = kts, kte+2
+            !    !    write(temp_str, '(E15.7,A)') swuflx(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
+            !    ! do csv_k = kts, kte+2
+            !    !    write(temp_str, '(E15.7,A)') swdflx(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
+            !    ! do csv_k = kts, kte+1
+            !    !    write(temp_str, '(E15.7,A)') swhr(1,csv_k), ','
+            !    !    csv_line = trim(csv_line) // trim(temp_str)
+            !    ! end do
                
-               ! ! 去掉最后一个逗号并打印
-               ! csv_line = trim(csv_line)
-               ! csv_line(len_trim(csv_line):len_trim(csv_line)) = ' '
-               ! write(0,'(A)') trim(csv_line)
+            !    ! ! 去掉最后一个逗号并打印
+            !    ! csv_line = trim(csv_line)
+            !    ! csv_line(len_trim(csv_line):len_trim(csv_line)) = ' '
+            !    ! write(0,'(A)') trim(csv_line)
               
 
-               !--- OUTPUTS:
-               gsw(i,j)  = swdflx(1,1) - swuflx(1,1)
-               swcf(i,j) = (swdflx(1,kte+2)-swuflx(1,kte+2)) - (swdflxc(1,kte+2)-swuflxc(1,kte+2))
+            !    !--- OUTPUTS:
+            !    gsw(i,j)  = swdflx(1,1) - swuflx(1,1)
+            !    swcf(i,j) = (swdflx(1,kte+2)-swuflx(1,kte+2)) - (swdflxc(1,kte+2)-swuflxc(1,kte+2))
 
-               if(present(swupt)) then
-                  !output up and down toa fluxes for total and clear sky:
-                  swupt(i,j)  = swuflx(1,kte+2)
-                  swuptc(i,j) = swuflxc(1,kte+2)
-                  swdnt(i,j)  = swdflx(1,kte+2)
-                  swdntc(i,j) = swdflxc(1,kte+2)
-                  !output up and down surface fluxes for total and clear sky:
-                  swupb(i,j)  = swuflx(1,1)
-                  swupbc(i,j) = swuflxc(1,1)
-                  swdnb(i,j)  = swdflx(1,1)
-                  swdnbc(i,j) = swdflxc(1,1)
-               endif
+            !    if(present(swupt)) then
+            !       !output up and down toa fluxes for total and clear sky:
+            !       swupt(i,j)  = swuflx(1,kte+2)
+            !       swuptc(i,j) = swuflxc(1,kte+2)
+            !       swdnt(i,j)  = swdflx(1,kte+2)
+            !       swdntc(i,j) = swdflxc(1,kte+2)
+            !       !output up and down surface fluxes for total and clear sky:
+            !       swupb(i,j)  = swuflx(1,1)
+            !       swupbc(i,j) = swuflxc(1,1)
+            !       swdnb(i,j)  = swdflx(1,1)
+            !       swdnbc(i,j) = swdflxc(1,1)
+            !    endif
 
-               if(present(swddir) .and. present(swddni) .and. present(swddif)) then
-                  swddir(i,j)  = swdkdir(1,1)          ! jararias 2013/08/10
-                  swddni(i,j)  = swddir(i,j) / coszrs  ! jararias 2013/08/10
-                  swddif(i,j)  = swdkdif(1,1)          ! jararias 2013/08/10
-               endif
+            !    if(present(swddir) .and. present(swddni) .and. present(swddif)) then
+            !       swddir(i,j)  = swdkdir(1,1)          ! jararias 2013/08/10
+            !       swddni(i,j)  = swddir(i,j) / coszrs  ! jararias 2013/08/10
+            !       swddif(i,j)  = swdkdif(1,1)          ! jararias 2013/08/10
+            !    endif
 
-               if(present (swupflx)) then
-                  do k = kts, kte+2
-                     swupflx(i,k,j)  = swuflx(1,k)
-                     swupflxc(i,k,j) = swuflxc(1,k)
-                     swdnflx(i,k,j)  = swdflx(1,k)
-                     swdnflxc(i,k,j) = swdflxc(1,k)
-                  enddo
-               endif
+            !    if(present (swupflx)) then
+            !       do k = kts, kte+2
+            !          swupflx(i,k,j)  = swuflx(1,k)
+            !          swupflxc(i,k,j) = swuflxc(1,k)
+            !          swdnflx(i,k,j)  = swdflx(1,k)
+            !          swdnflxc(i,k,j) = swdflxc(1,k)
+            !       enddo
+            !    endif
 
-               !--- output heating rate tendency; convert heating rate from K/d to K/s:
-               do k = kts, kte
-                  tten1d(k) = swhr(ncol,k)/86400.
-                  rthratensw(i,k,j) = tten1d(k)/pi3d(i,k,j)
-               enddo
+            !    !--- output heating rate tendency; convert heating rate from K/d to K/s:
+            !    do k = kts, kte
+            !       tten1d(k) = swhr(ncol,k)/86400.
+            !       rthratensw(i,k,j) = tten1d(k)/pi3d(i,k,j)
+            !    enddo
 
-            else
+            ! else
 
-               if(present(swupt)) then
-                  !output up and down toa fluxes for total and clear sky:
-                  swupt(i,j)     = 0.
-                  swuptc(i,j)    = 0.
-                  swdnt(i,j)     = 0.
-                  swdntc(i,j)    = 0.
-                  !output up and down surface fluxes for total and clear sky:
-                  swupb(i,j)     = 0.
-                  swupbc(i,j)    = 0.
-                  swdnb(i,j)     = 0.
-                  swdnbc(i,j)    = 0.
-               endif
+            !    if(present(swupt)) then
+            !       !output up and down toa fluxes for total and clear sky:
+            !       swupt(i,j)     = 0.
+            !       swuptc(i,j)    = 0.
+            !       swdnt(i,j)     = 0.
+            !       swdntc(i,j)    = 0.
+            !       !output up and down surface fluxes for total and clear sky:
+            !       swupb(i,j)     = 0.
+            !       swupbc(i,j)    = 0.
+            !       swdnb(i,j)     = 0.
+            !       swdnbc(i,j)    = 0.
+            !    endif
 
-            endif
+            ! endif
 
          end do i_loop !end longitude loop.
 

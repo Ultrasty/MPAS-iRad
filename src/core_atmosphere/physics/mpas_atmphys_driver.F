@@ -27,6 +27,7 @@
  use mpas_atmphys_update
  use mpas_atmphys_vars, only: l_camlw,l_conv,l_radtlw,l_radtsw
  use mpas_timer
+ use torch_wrapper
 
  implicit none
  private
@@ -108,12 +109,14 @@
 
 
 !=================================================================================================================
- subroutine physics_driver(domain,itimestep,xtime_s)
+ subroutine physics_driver(domain,itimestep,xtime_s, model)
 !=================================================================================================================
 
 !input arguments:
  integer,intent(in):: itimestep
  real(kind=RKIND),intent(in):: xtime_s
+
+ TYPE(ftorchmodel) :: model
 
 !inout arguments:
  type(domain_type),intent(inout):: domain
@@ -243,7 +246,7 @@
        do thread=1,nThreads
           call driver_radiation_lw(xtime_s,block%configs,mesh,state,time_lev,diag_physics, &
                                    atm_input,sfc_input,tend_physics, &
-                                   cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
+                                   cellSolveThreadStart(thread),cellSolveThreadEnd(thread), model)
        end do
 !$OMP END PARALLEL DO
     endif

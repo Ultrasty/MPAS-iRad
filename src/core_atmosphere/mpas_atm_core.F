@@ -12,7 +12,7 @@ module atm_core
    use mpas_dmpar
    use mpas_log, only : mpas_log_write, mpas_log_info
    use mpas_io_units, only : mpas_new_unit, mpas_release_unit
-
+   use torch_wrapper
    !
    ! Abstract interface for routine used to communicate halos of fields
    ! in a named group
@@ -639,6 +639,20 @@ module atm_core
       real (kind=R8KIND) :: input_start_time, input_stop_time
       real (kind=R8KIND) :: output_start_time, output_stop_time
       
+
+      ! added by sty
+      CHARACTER(300), TARGET :: model_loc;
+      TYPE(ftorchmodel) :: model;
+      INTEGER :: sty_res
+      INTEGER(C_INT) :: use_gpu = 0
+
+      model_loc = "/public/home/qinbo/mpas-rad/v2-mpas-rad/mpas_dataprocess/" // &
+      "8_train/train-small-2/models/best_model_20251205_221855_cpu.pt" // &
+      CHAR(0)
+      ! added by sty
+
+
+
       ierr = 0
 
       clock => domain % clock
@@ -736,6 +750,11 @@ module atm_core
       ! During integration, time level 1 stores the model state at the beginning of the
       !   time step, and time level 2 stores the state advanced dt in time by timestep(...)
       itimestep = 1
+
+
+      model = test_model_new(model_loc, use_gpu)
+
+
       do while (.not. mpas_is_clock_stop_time(clock))
 
          currTime = mpas_get_clock_time(clock, MPAS_NOW, ierr)
@@ -798,7 +817,7 @@ module atm_core
 
          call mpas_timer_start("time integration")
          call mpas_dmpar_get_time(integ_start_time)
-         call atm_do_timestep(domain, dt, itimestep)
+         call atm_do_timestep(domain, dt, itimestep, model)
          call mpas_dmpar_get_time(integ_stop_time)
          call mpas_timer_stop("time integration")   
          call mpas_log_write(' Timing for integration step: $r s', realArgs=(/real(integ_stop_time - integ_start_time, kind=RKIND)/))
@@ -894,6 +913,8 @@ module atm_core
          call mpas_stream_mgr_reset_alarms(domain % streamManager, direction=MPAS_STREAM_OUTPUT, ierr=ierr)
 
       end do
+
+      call test_model_delete(model)
    
    end function atm_core_run
 
@@ -975,7 +996,7 @@ module atm_core
    end subroutine atm_reset_diagnostics
 
 
-   subroutine atm_do_timestep(domain, dt, itimestep)
+   subroutine atm_do_timestep(domain, dt, itimestep, model)
    
       use mpas_timekeeping
       use mpas_kind_types
@@ -993,6 +1014,8 @@ module atm_core
       type (domain_type), intent(inout) :: domain 
       real (kind=RKIND), intent(in) :: dt
       integer, intent(in) :: itimestep
+
+      TYPE(ftorchmodel) :: model
       
       type (MPAS_Time_Type) :: startTime, currTime
       type (MPAS_TimeInterval_Type) :: xtimeTime
@@ -1015,7 +1038,7 @@ module atm_core
       !proceed with physics if moist_physics is set to true:
       if(moist_physics) then
          call physics_timetracker(domain,dt,clock,itimestep,xtime_s)
-         call physics_driver(domain,itimestep,xtime_s)
+         call physics_driver(domain,itimestep,xtime_s, model)
       endif
 #endif
 

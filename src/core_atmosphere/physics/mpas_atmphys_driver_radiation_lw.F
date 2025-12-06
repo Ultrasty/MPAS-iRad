@@ -856,7 +856,7 @@
 
 !=================================================================================================================
  subroutine driver_radiation_lw(xtime_s,configs,mesh,state,time_lev,diag_physics,atm_input, &
-                                sfc_input,tend_physics,its,ite)
+                                sfc_input,tend_physics,its,ite, model)
 !=================================================================================================================
 
 !input arguments:
@@ -873,6 +873,8 @@
  type(mpas_pool_type),intent(inout):: atm_input
  type(mpas_pool_type),intent(inout):: sfc_input
  type(mpas_pool_type),intent(inout):: tend_physics
+
+ TYPE(ftorchmodel) :: model
 
 !local pointers:
  logical,pointer:: config_o3climatology
@@ -938,7 +940,7 @@
             lwdnbc   = lwdnbc_p    , xtime    = xtime_m      ,   xlong    = xlon_p      ,  &
             albedo   = sfc_albedo_p, coszr    = coszr_p      ,   rthratensw = rthratensw_p , &
             swupb    = swupb_p     , swdnb    = swdnb_p      ,   swupt      = swupt_p    , &
-            swdnt    = swdnt_p     , gsw        = gsw_p      ,                             &
+            swdnt    = swdnt_p     , gsw        = gsw_p      ,   model      = model,       &
             ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde ,        &
             ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme ,        &
             its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte          &

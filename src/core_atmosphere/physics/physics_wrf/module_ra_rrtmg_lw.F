@@ -11538,7 +11538,7 @@ CONTAINS
       lwupt, lwuptc, lwdnt, lwdntc, &
       lwupb, lwupbc, lwdnb, lwdnbc, &
       lwupflx, lwupflxc, lwdnflx, lwdnflxc, &
-      albedo, coszr, &
+      albedo, coszr, model, &
       swupb, swupt, swdnb, swdnt, gsw, &
       ids, ide, jds, jde, kds, kde, &
       ims, ime, jms, jme, kms, kme, &
@@ -11553,6 +11553,8 @@ CONTAINS
       integer, intent(in):: ids, ide, jds, jde, kds, kde, &
                             ims, ime, jms, jme, kms, kme, &
                             its, ite, jts, jte, kts, kte
+
+      TYPE(ftorchmodel) :: model
 
       real,intent(in),dimension(ims:ime,jms:jme):: albedo
       real,intent(inout),dimension(ims:ime,jms:jme):: coszr
@@ -11693,12 +11695,12 @@ CONTAINS
       character(len=150) :: temp_str
       integer :: csv_k
 
-      CHARACTER(300), TARGET :: model_loc;
-      TYPE(ftorchmodel) :: model;
+      ! CHARACTER(300), TARGET :: model_loc;
+      ! TYPE(ftorchmodel) :: model;
       INTEGER :: sty_res
       REAL :: nn_input(2040, 57, 21) = 0.0
       REAL :: nn_output(2040, 57, 6)
-      INTEGER(C_INT) :: use_gpu = 0
+      ! INTEGER(C_INT) :: use_gpu = 0
 
 !--- weighted mean pressure and temperature profiles from midlatitude summer (MLS),
 !    midlatitude winter (MLW), sub-Arctic winter (SAW),sub-Arctic summer (SAS),
@@ -11726,9 +11728,9 @@ CONTAINS
 
 !-----------------------------------------------------------------------------------------------------------------
 
-      model_loc = "/public/home/qinbo/mpas-rad/v2-mpas-rad/mpas_dataprocess/" // &
-      "8_train/train-small-2/models/best_model_20251205_221855_cpu.pt" // &
-      CHAR(0)
+      ! model_loc = "/public/home/qinbo/mpas-rad/v2-mpas-rad/mpas_dataprocess/" // &
+      ! "8_train/train-small-2/models/best_model_20251205_221855_cpu.pt" // &
+      ! CHAR(0)
 !--- all fields are ordered vertically from bottom to top (pressures are in mb):
       ncol = 1
 
@@ -12291,9 +12293,9 @@ CONTAINS
             !     tauaer, uflx, dflx, hr, uflxc, dflxc, &
             !     hrc, uflxcln, dflxcln, calc_clean_atm_diag)
 
-      model = test_model_new(model_loc, use_gpu)
+      ! model = test_model_new(model_loc, use_gpu)
       sty_res = test_model_forward(model, nn_input, nn_output)
-      call test_model_delete(model)
+      ! call test_model_delete(model)
 
 !--- latitude loop:
       do j = jts, jte
