@@ -641,14 +641,20 @@ module atm_core
       
 
       ! added by sty
-      CHARACTER(300), TARGET :: model_loc;
+      CHARACTER(512) :: model_path
+      CHARACTER(512), TARGET :: model_loc;
+      INTEGER :: grid_count, level, var_input, var_output
       TYPE(ftorchmodel) :: model;
       INTEGER :: sty_res
       INTEGER(C_INT) :: use_gpu = 0
 
-      model_loc = "/public/home/qinbo/mpas-rad/v2-mpas-rad/mpas_dataprocess/" // &
-      "8_train/train-small-2/models/best_model_20251205_221855_cpu.pt" // &
-      CHAR(0)
+      NAMELIST /nn_config/ model_path, grid_count, level, var_input, var_output
+
+      OPEN(10, FILE='nn_config.nml')
+      READ(10, NML=nn_config)
+      CLOSE(10)
+
+      model_loc = TRIM(model_path) // CHAR(0)
       ! added by sty
 
 

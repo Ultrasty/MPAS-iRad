@@ -11698,8 +11698,13 @@ CONTAINS
       ! CHARACTER(300), TARGET :: model_loc;
       ! TYPE(ftorchmodel) :: model;
       INTEGER :: sty_res
-      REAL :: nn_input(2040, 57, 21) = 0.0
-      REAL :: nn_output(2040, 57, 6)
+      REAL, ALLOCATABLE :: nn_input(:, :, :)
+      REAL, ALLOCATABLE :: nn_output(:, :, :)
+      CHARACTER(512) :: model_path
+      CHARACTER(512), TARGET :: model_loc;
+      INTEGER :: grid_count, level, var_input, var_output
+
+      NAMELIST /nn_config/ model_path, grid_count, level, var_input, var_output
       ! INTEGER(C_INT) :: use_gpu = 0
 
 !--- weighted mean pressure and temperature profiles from midlatitude summer (MLS),
@@ -11725,6 +11730,16 @@ CONTAINS
          264.80, 266.50, 267.59, 268.44, 268.69, 267.76, &
          266.13, 263.96, 261.54, 258.93, 256.15, 253.23, &
          249.89, 246.67, 243.48, 240.25, 236.66, 233.86/
+
+
+           ! 读取配置
+      OPEN(10, FILE='nn_config.nml')
+      READ(10, NML=nn_config)
+      CLOSE(10)
+
+      ALLOCATE(nn_input(grid_count, level, var_input))
+      ALLOCATE(nn_output(grid_count, level, var_output))
+      nn_input = 0.0
 
 !-----------------------------------------------------------------------------------------------------------------
 
@@ -12489,6 +12504,8 @@ CONTAINS
       where (swdnt  < 0.d0) swdnt  = 0.d0
       where (swupb  < 0.d0) swupb  = 0.d0
       where (swdnb  < 0.d0) swdnb  = 0.d0
+
+      DEALLOCATE(nn_input, nn_output)
 
    end subroutine rrtmg_lwrad
 

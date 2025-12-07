@@ -1,0 +1,7 @@
+&nn_config
+  model_path = "/public/home/qinbo/mpas-rad/v2-mpas-rad/mpas_dataprocess/8_train/train-small-3/models/best_model_20251206_231935_cpu.pt"
+  grid_count = 2606
+  level = 57
+  var_input = 21
+  var_output = 6
+/
