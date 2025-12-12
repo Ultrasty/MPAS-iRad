@@ -1002,10 +1002,10 @@ endif
 
 override CPPFLAGS += -DMPAS_BUILD_TARGET=$(BUILD_TARGET)
 
-# added by Shen Tianyu for FTA coupling 20250621
-override LIBS += -L/public/home/qinbo/mpas-rad/v2-mpas-rad/ai-coupled/FTA/install/lib -Wl,-rpath,/public/home/qinbo/mpas-rad/v2-mpas-rad/ai-coupled/FTA/install/lib:/public/home/qinbo/mpas-rad/v2-mpas-rad/ai-coupled/libtorch-cpu/lib  -Wl,-rpath-link,/public/home/qinbo/mpas-rad/v2-mpas-rad/ai-coupled/FTA/install/lib:/public/home/qinbo/mpas-rad/v2-mpas-rad/ai-coupled/libtorch-cpu/lib -ltorch_wrapper_F
+# added by Shen Tianyu for FTA-gpu coupling 20250621
+override LIBS += -L/public/home/qinbo/mpas-rad/v2-mpas-rad/ai-coupled/FTA-gpu/install/lib -Wl,-rpath,/public/home/qinbo/mpas-rad/v2-mpas-rad/ai-coupled/FTA-gpu/install/lib:/public/home/qinbo/mpas-rad/v2-mpas-rad/ai-coupled/libtorch-gpu/lib  -Wl,-rpath-link,/public/home/qinbo/mpas-rad/v2-mpas-rad/ai-coupled/FTA-gpu/install/lib:/public/home/qinbo/mpas-rad/v2-mpas-rad/ai-coupled/libtorch-gpu/lib -ltorch_wrapper_F
 
-override FCINCLUDES += -I/public/home/qinbo/mpas-rad/v2-mpas-rad/ai-coupled/FTA/install/include
+override FCINCLUDES += -I/public/home/qinbo/mpas-rad/v2-mpas-rad/ai-coupled/FTA-gpu/install/include
 
 
 ifeq ($(wildcard src/core_$(CORE)), ) # CHECK FOR EXISTENCE OF CORE DIRECTORY
