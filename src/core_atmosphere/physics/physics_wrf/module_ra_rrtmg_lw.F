@@ -11703,9 +11703,10 @@ CONTAINS
       CHARACTER(512) :: model_path
       CHARACTER(512), TARGET :: model_loc;
       INTEGER :: grid_count, level, var_input, var_output
+      INTEGER(C_INT) :: use_gpu
 
-      NAMELIST /nn_config/ model_path, grid_count, level, var_input, var_output
-      ! INTEGER(C_INT) :: use_gpu = 0
+      NAMELIST /nn_config/ model_path, grid_count, level, var_input, var_output, use_gpu
+      !  = 0
 
 !--- weighted mean pressure and temperature profiles from midlatitude summer (MLS),
 !    midlatitude winter (MLW), sub-Arctic winter (SAW),sub-Arctic summer (SAS),

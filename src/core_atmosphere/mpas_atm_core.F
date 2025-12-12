@@ -646,9 +646,9 @@ module atm_core
       INTEGER :: grid_count, level, var_input, var_output
       TYPE(ftorchmodel) :: model;
       INTEGER :: sty_res
-      INTEGER(C_INT) :: use_gpu = 0
+      INTEGER(C_INT) :: use_gpu
 
-      NAMELIST /nn_config/ model_path, grid_count, level, var_input, var_output
+      NAMELIST /nn_config/ model_path, grid_count, level, var_input, var_output, use_gpu
 
       OPEN(10, FILE='nn_config.nml')
       READ(10, NML=nn_config)
