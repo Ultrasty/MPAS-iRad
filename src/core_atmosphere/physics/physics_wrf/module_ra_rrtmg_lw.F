@@ -12255,13 +12255,13 @@ CONTAINS
                 hrc, uflxcln, dflxcln, calc_clean_atm_diag)
 
 
-            dflx(1,kts:kte+2) = nn_output(i,kts:kte+2,5)
-            uflx(1,kts:kte+2) = nn_output(i,kts:kte+2,4)
-            hr(1,kts:kte+1) = nn_output(i,kts:kte+1,6)
+            ! dflx(1,kts:kte+2) = nn_output(i,kts:kte+2,5)
+            ! uflx(1,kts:kte+2) = nn_output(i,kts:kte+2,4)
+            ! hr(1,kts:kte+1) = nn_output(i,kts:kte+1,6)
 
-            swdflx(1,kts:kte+2) = nn_output(i,kts:kte+2,2)
-            swuflx(1,kts:kte+2) = nn_output(i,kts:kte+2,1)
-            swhr(1,kts:kte+1) = nn_output(i,kts:kte+1,3)
+            ! swdflx(1,kts:kte+2) = nn_output(i,kts:kte+2,2)
+            ! swuflx(1,kts:kte+2) = nn_output(i,kts:kte+2,1)
+            ! swhr(1,kts:kte+1) = nn_output(i,kts:kte+1,3)
 
 
             !--- OUTPUTS:
@@ -12269,7 +12269,7 @@ CONTAINS
             olr(i, j) = uflx(1, kte+2)
             ! lwcf(i, j) = uflxc(1, nlayers + 1) - uflx(1, nlayers + 1)
 
-            gsw(i,j)  = swdflx(1,1) - swuflx(1,1)
+            ! gsw(i,j)  = swdflx(1,1) - swuflx(1,1)
 
             ! print *, "gsw(i,j)", gsw(i,j)
 
@@ -12285,10 +12285,10 @@ CONTAINS
                lwdnb(i, j) = dflx(1, 1)
                !lwdnbc(i, j) = dflxc(1, 1)
 
-               swupt(i, j) = swuflx(1, kte+2)
-               swdnt(i, j) = swdflx(1, kte+2)
-               swupb(i, j) = swuflx(1, 1)
-               swdnb(i, j) = swdflx(1, 1)
+               ! swupt(i, j) = swuflx(1, kte+2)
+               ! swdnt(i, j) = swdflx(1, kte+2)
+               ! swupb(i, j) = swuflx(1, 1)
+               ! swdnb(i, j) = swdflx(1, 1)
 
             end if
 
@@ -12305,9 +12305,9 @@ CONTAINS
             !--- output heating rate tendency. convert heating rate from K per day to K per second:
             do k = kts, kte
                tten1d(k) = hr(ncol, k)/86400.
-               swtten1d(k) = swhr(ncol, k)/86400.
+               ! swtten1d(k) = swhr(ncol, k)/86400.
                rthratenlw(i, k, j) = tten1d(k)/pi3d(i, k, j)
-               rthratensw(i, k, j) = swtten1d(k)/pi3d(i, k, j)
+               ! rthratensw(i, k, j) = swtten1d(k)/pi3d(i, k, j)
             end do
     
 
