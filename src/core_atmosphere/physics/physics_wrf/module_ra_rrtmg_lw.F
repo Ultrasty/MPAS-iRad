@@ -12244,6 +12244,73 @@ CONTAINS
                end do
             end if
 
+            !--- CALL TO THE RRTMG LONG WAVE RADIATION MODEL:
+            call rrtmg_lw &
+               (ncol, nlay, icld, play, plev, tlay, &
+                tlev, tsfc, h2ovmr, o3vmr, co2vmr, ch4vmr, &
+                n2ovmr, o2vmr, cfc11vmr, cfc12vmr, cfc22vmr, ccl4vmr, &
+                emis, inflglw, iceflglw, liqflglw, cldfmcl, taucmcl, &
+                ciwpmcl, clwpmcl, cswpmcl, reicmcl, relqmcl, resnmcl, &
+                tauaer, uflx, dflx, hr, uflxc, dflxc, &
+                hrc, uflxcln, dflxcln, calc_clean_atm_diag)
+
+
+            dflx(1,kts:kte+2) = nn_output(i,kts:kte+2,5)
+            uflx(1,kts:kte+2) = nn_output(i,kts:kte+2,4)
+            hr(1,kts:kte+1) = nn_output(i,kts:kte+1,6)
+
+            swdflx(1,kts:kte+2) = nn_output(i,kts:kte+2,2)
+            swuflx(1,kts:kte+2) = nn_output(i,kts:kte+2,1)
+            swhr(1,kts:kte+1) = nn_output(i,kts:kte+1,3)
+
+
+            !--- OUTPUTS:
+            glw(i, j) = dflx(1, 1)
+            olr(i, j) = uflx(1, kte+2)
+            ! lwcf(i, j) = uflxc(1, nlayers + 1) - uflx(1, nlayers + 1)
+
+            gsw(i,j)  = swdflx(1,1) - swuflx(1,1)
+
+            ! print *, "gsw(i,j)", gsw(i,j)
+
+            if (present(lwupt)) then
+               !output up and down toa fluxes for total and clear sky:
+               lwupt(i, j) = uflx(1, kte+2)
+               !lwuptc(i, j) = uflxc(1, nlayers + 1)
+               lwdnt(i, j) = dflx(1, kte+2)
+               !lwdntc(i, j) = dflxc(1, nlayers + 1)
+               !output up and down surface fluxes for total and clear sky:
+               lwupb(i, j) = uflx(1, 1)
+               !lwupbc(i, j) = uflxc(1, 1)
+               lwdnb(i, j) = dflx(1, 1)
+               !lwdnbc(i, j) = dflxc(1, 1)
+
+               swupt(i, j) = swuflx(1, kte+2)
+               swdnt(i, j) = swdflx(1, kte+2)
+               swupb(i, j) = swuflx(1, 1)
+               swdnb(i, j) = swdflx(1, 1)
+
+            end if
+
+            if (present(lwupflx)) then
+               !output up and down fluxes:
+               do k = kts, kte+2
+                  lwupflx(i, k, j) = uflx(1, k)
+                  !lwupflxc(i, k, j) = uflxc(1, k)
+                  lwdnflx(i, k, j) = dflx(1, k)
+                  !lwdnflxc(i, k, j) = dflxc(1, k)
+               end do
+            end if
+
+            !--- output heating rate tendency. convert heating rate from K per day to K per second:
+            do k = kts, kte
+               tten1d(k) = hr(ncol, k)/86400.
+               swtten1d(k) = swhr(ncol, k)/86400.
+               rthratenlw(i, k, j) = tten1d(k)/pi3d(i, k, j)
+               rthratensw(i, k, j) = swtten1d(k)/pi3d(i, k, j)
+            end do
+    
+
             !--- deallocate local column arrays:
             if (allocated(o3mmr)) deallocate (o3mmr)
             if (allocated(varint)) deallocate (varint)
@@ -12318,23 +12385,7 @@ CONTAINS
          !--- longitude loop:
          do i = its, ite
             
-            ! ! 写入垂直分层的输出变量
-            ! do csv_k = kts, kte+2
-            !    write(temp_str, '(E15.7,A)') uflx(1,csv_k), ','
-            !    csv_line = trim(csv_line) // trim(temp_str)
-            ! end do
-            ! do csv_k = kts, kte+2
-            !    write(temp_str, '(E15.7,A)') dflx(1,csv_k), ','
-            !    csv_line = trim(csv_line) // trim(temp_str)
-            ! end do
-            ! do csv_k = kts, kte+1
-            !    write(temp_str, '(E15.7,A)') hr(1,csv_k), ','
-            !    csv_line = trim(csv_line) // trim(temp_str)
-            ! end do
-            ! do csv_k = kts, kte+1
-            !    write(temp_str, '(E15.7,A)') pi3d(i, csv_k, j), ','
-            !    csv_line = trim(csv_line) // trim(temp_str)
-            ! end do
+
 
             if (.not. allocated(o3mmr)) allocate (o3mmr(kts:nlayers))
             if (.not. allocated(varint)) allocate (varint(kts:nlayers + 1))
@@ -12390,42 +12441,32 @@ CONTAINS
             swuflx(1,kts:kte+2) = nn_output(i,kts:kte+2,1)
             swhr(1,kts:kte+1) = nn_output(i,kts:kte+1,3)
 
-            ! print *, "swdflx(1,1)=", swdflx(1,1)
-
-            ! for debug
-            ! print *, 'i=', i, 'j=', j
-            ! print *, 'uflx shape:', shape(uflx)
-            ! print *, 'uflx(1,:):', uflx(1,kts:kte+2)
-            ! print *, 'uflx at TOA (nlayers+1):', uflx(1, nlayers+1)
-            ! print *, 'nlayers:', nlayers
-            ! print *, 'kte+2:', kte + 2
-            ! for debug
 
             !--- OUTPUTS:
-            glw(i, j) = dflx(1, 1)
-            olr(i, j) = uflx(1, kte+2)
+            ! glw(i, j) = dflx(1, 1)
+            ! olr(i, j) = uflx(1, kte+2)
             ! lwcf(i, j) = uflxc(1, nlayers + 1) - uflx(1, nlayers + 1)
 
-            gsw(i,j)  = swdflx(1,1) - swuflx(1,1)
+            ! gsw(i,j)  = swdflx(1,1) - swuflx(1,1)
 
             ! print *, "gsw(i,j)", gsw(i,j)
 
             if (present(lwupt)) then
                !output up and down toa fluxes for total and clear sky:
-               lwupt(i, j) = uflx(1, kte+2)
+               ! lwupt(i, j) = uflx(1, kte+2)
                !lwuptc(i, j) = uflxc(1, nlayers + 1)
-               lwdnt(i, j) = dflx(1, kte+2)
+               ! lwdnt(i, j) = dflx(1, kte+2)
                !lwdntc(i, j) = dflxc(1, nlayers + 1)
                !output up and down surface fluxes for total and clear sky:
-               lwupb(i, j) = uflx(1, 1)
+               ! lwupb(i, j) = uflx(1, 1)
                !lwupbc(i, j) = uflxc(1, 1)
-               lwdnb(i, j) = dflx(1, 1)
+               ! lwdnb(i, j) = dflx(1, 1)
                !lwdnbc(i, j) = dflxc(1, 1)
 
-               swupt(i, j) = swuflx(1, kte+2)
-               swdnt(i, j) = swdflx(1, kte+2)
-               swupb(i, j) = swuflx(1, 1)
-               swdnb(i, j) = swdflx(1, 1)
+               ! swupt(i, j) = swuflx(1, kte+2)
+               ! swdnt(i, j) = swdflx(1, kte+2)
+               ! swupb(i, j) = swuflx(1, 1)
+               ! swdnb(i, j) = swdflx(1, 1)
 
             end if
 
