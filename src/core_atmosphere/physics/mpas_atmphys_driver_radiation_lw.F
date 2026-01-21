@@ -424,11 +424,11 @@
     lwuptc_p(i,j)   = 0.0_RKIND
     olrtoa_p(i,j)   = 0.0_RKIND
 
-    swdnb_p(i,j)    = 0.0_RKIND
-    swdnt_p(i,j)    = 0.0_RKIND
-    swupb_p(i,j)    = 0.0_RKIND
-    swupt_p(i,j)    = 0.0_RKIND
-    gsw_p(i,j)      = 0.0_RKIND
+   !  swdnb_p(i,j)    = 0.0_RKIND
+   !  swdnt_p(i,j)    = 0.0_RKIND
+   !  swupb_p(i,j)    = 0.0_RKIND
+   !  swupt_p(i,j)    = 0.0_RKIND
+   !  gsw_p(i,j)      = 0.0_RKIND
  enddo
  
  do k = kts,kte
