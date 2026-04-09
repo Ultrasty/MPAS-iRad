@@ -722,6 +722,7 @@
                                            swupb,swupbc,swupt,swuptc,swddir,swddni,  &
                                            swddif
  real(kind=RKIND),dimension(:,:),pointer:: rthratensw
+ real(kind=RKIND),dimension(:,:),pointer:: swdnflx,swdnflxc,swupflx,swupflxc
 
 !-----------------------------------------------------------------------------------------------------------------
 !call mpas_log_write(' ')
@@ -742,6 +743,10 @@
  call mpas_pool_get_array(diag_physics,'swddni'    ,swddni    )
  call mpas_pool_get_array(diag_physics,'swddif'    ,swddif    )
  call mpas_pool_get_array(tend_physics,'rthratensw',rthratensw)
+ call mpas_pool_get_array(diag_physics,'swdnflx' ,swdnflx )
+ call mpas_pool_get_array(diag_physics,'swdnflxc',swdnflxc)
+ call mpas_pool_get_array(diag_physics,'swupflx' ,swupflx )
+ call mpas_pool_get_array(diag_physics,'swupflxc',swupflxc)
 
  do j = jts,jte
 
@@ -765,6 +770,15 @@
  do k = kts,kte
  do i = its,ite
     rthratensw(k,i) = rthratensw_p(i,k,j)
+ enddo
+ enddo
+
+ do k = kts,kte+2
+ do i = its,ite
+    swdnflx(k,i)  = swdnflx_p(i,k,j)
+    swdnflxc(k,i) = swdnflxc_p(i,k,j)
+    swupflx(k,i)  = swupflx_p(i,k,j)
+    swupflxc(k,i) = swupflxc_p(i,k,j)
  enddo
  enddo
 
@@ -920,6 +934,8 @@
               swdnt      = swdnt_p       , swdntc   = swdntc_p    , swupb      = swupb_p      , &
               swupbc     = swupbc_p      , swdnb    = swdnb_p     , swdnbc     = swdnbc_p     , &
               swddir     = swddir_p      , swddni   = swddni_p    , swddif     = swddif_p     , &
+              swupflx    = swupflx_p    , swupflxc   = swupflxc_p   , &
+              swdnflx    = swdnflx_p    , swdnflxc   = swdnflxc_p   , &
               ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde ,           &
               ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme ,           &
               its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte             &
