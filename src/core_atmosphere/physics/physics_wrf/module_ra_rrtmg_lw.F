@@ -11538,6 +11538,7 @@ CONTAINS
       lwupt, lwuptc, lwdnt, lwdntc, &
       lwupb, lwupbc, lwdnb, lwdnbc, &
       lwupflx, lwupflxc, lwdnflx, lwdnflxc, &
+      swupflx, swdnflx, &
       albedo, coszr, model, &
       swupb, swupt, swdnb, swdnt, gsw, &
       ids, ide, jds, jde, kds, kde, &
@@ -11594,6 +11595,8 @@ CONTAINS
          rre_cloud, rre_ice, rre_snow
       real, intent(out), dimension(ims:ime, kms:kme + 2, jms:jme), optional:: &
          lwupflx, lwupflxc, lwdnflx, lwdnflxc
+      real, intent(inout), dimension(ims:ime, kms:kme + 2, jms:jme), optional:: &
+         swupflx, swdnflx
 
 !local variables and arrays:
       integer:: calc_clean_atm_diag
@@ -12436,6 +12439,13 @@ CONTAINS
                   !lwupflxc(i, k, j) = uflxc(1, k)
                   lwdnflx(i, k, j) = dflx(1, k)
                   !lwdnflxc(i, k, j) = dflxc(1, k)
+               end do
+            end if
+
+            if (present(swupflx)) then
+               do k = kts, kte+2
+                  swupflx(i, k, j) = swuflx(1, k)   
+                  swdnflx(i, k, j) = swdflx(1, k)   
                end do
             end if
 

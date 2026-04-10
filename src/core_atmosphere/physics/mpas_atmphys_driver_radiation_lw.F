@@ -167,6 +167,9 @@
        if(.not.allocated(coszr_p)      ) allocate(coszr_p(ims:ime,jms:jme)              )
        if(.not.allocated(sfc_albedo_p) ) allocate(sfc_albedo_p(ims:ime,jms:jme)         )
 
+       if(.not.allocated(swdnflx_p)) allocate(swdnflx_p(ims:ime,kms:kme+1,jms:jme))
+       if(.not.allocated(swupflx_p)) allocate(swupflx_p(ims:ime,kms:kme+1,jms:jme))
+
     case("cam_lw")
        if(.not.allocated(xlat_p)       ) allocate(xlat_p(ims:ime,jms:jme)               )
        if(.not.allocated(xlon_p)       ) allocate(xlon_p(ims:ime,jms:jme)               )
@@ -274,6 +277,9 @@
        if(allocated(o3clim_p)     ) deallocate(o3clim_p     )
        if(allocated(coszr_p)      ) deallocate(coszr_p      )
        if(allocated(sfc_albedo_p) ) deallocate(sfc_albedo_p )
+
+       if(allocated(swdnflx_p)) deallocate(swdnflx_p)
+       if(allocated(swupflx_p)) deallocate(swupflx_p)
 
     case("cam_lw")
        if(allocated(pin_p)        ) deallocate(pin_p        )
@@ -504,6 +510,15 @@
        enddo
        enddo
 
+       do j = jts,jte
+       do k = kts,kte+2
+       do i = its,ite
+            swdnflx_p(i,k,j) = 0.0_RKIND
+            swupflx_p(i,k,j) = 0.0_RKIND
+       enddo
+       enddo
+       enddo
+
        if(config_o3climatology) then
           !ozone mixing ratio:
           do k = 1, num_oznLevels
@@ -668,6 +683,7 @@
                                           lwupt,lwuptc,olrtoa, gsw,swupb,swupt,swdnb,swdnt
  real(kind=RKIND),dimension(:,:),pointer:: rthratenlw,rthratensw
  real(kind=RKIND),dimension(:,:),pointer:: rre_cloud,rre_ice,rre_snow
+ real(kind=RKIND),dimension(:,:),pointer :: swdnflx, swupflx
 
 !local variables and arrays:
  integer:: nlay,pcols
@@ -701,6 +717,9 @@
  call mpas_pool_get_array(tend_physics,'rthratenlw',rthratenlw)
  call mpas_pool_get_array(tend_physics,'rthratensw',rthratensw)
 
+ call mpas_pool_get_array(diag_physics,'swdnflx',swdnflx)
+ call mpas_pool_get_array(diag_physics,'swupflx',swupflx)
+
  do j = jts,jte
  do i = its,ite
     glw(i)    = glw_p(i,j)
@@ -732,6 +751,15 @@
  enddo
  enddo
  enddo
+
+ do j = jts,jte
+   do k = kts,kte+2
+   do i = its,ite
+      swdnflx(k,i) = swdnflx_p(i,k,j)
+      swupflx(k,i) = swupflx_p(i,k,j)
+   enddo
+   enddo
+   enddo
 
  radiation_lw_select: select case (trim(radt_lw_scheme))
 
@@ -939,6 +967,7 @@
             lwupb    = lwupb_p     , lwupbc     = lwupbc_p      , lwdnb     = lwdnb_p    , &
             lwdnbc   = lwdnbc_p    , xtime    = xtime_m      ,   xlong    = xlon_p      ,  &
             albedo   = sfc_albedo_p, coszr    = coszr_p      ,   rthratensw = rthratensw_p , &
+            swupflx  = swupflx_p   , swdnflx  = swdnflx_p    ,  &
             swupb    = swupb_p     , swdnb    = swdnb_p      ,   swupt      = swupt_p    , &
             swdnt    = swdnt_p     , gsw        = gsw_p      ,   model      = model,       &
             ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde ,        &
